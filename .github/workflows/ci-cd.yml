@@ -1,0 +1,110 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  IMAGE_NAME: taiphamdac/3d_stedy
+  SERVER_HOST: 147.182.199.183
+  SERVER_USERNAME: root
+  SERVER_PASSWORD: ${{ secrets.PASSWORD }}
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run linting
+        run: npm run lint
+
+      - name: Type check
+        run: npm run type-check
+
+      - name: Build application
+        run: npm run build
+
+  deploy:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: taiphamdac
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ env.IMAGE_NAME }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Deploy to server
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ env.SERVER_HOST }}
+          username: ${{ env.SERVER_USERNAME }}
+          password: ${{ env.SERVER_PASSWORD }}
+          script: |
+            # Create deployment directory if not exists
+            mkdir -p /var/www/3d_stedy
+            
+            # Copy docker-compose.yml to server
+            cat > /var/www/3d_stedy/docker-compose.yml << 'EOL'
+            version: '3.8'
+
+            services:
+              app:
+                image: taiphamdac/3d_stedy:latest
+                container_name: 3d_stedy_app
+                restart: always
+                ports:
+                  - "3000:3000"
+                environment:
+                  - NODE_ENV=production
+                volumes:
+                  - .env.production:/app/.env.production
+                networks:
+                  - app_network
+
+            networks:
+              app_network:
+                driver: bridge
+            EOL
+
+            # Deploy application
+            cd /var/www/3d_stedy
+            docker-compose pull
+            docker-compose up -d
+            
+            # Health check
+            sleep 10
+            if ! curl -f http://localhost:3000; then
+              echo "Deployment failed"
+              docker-compose logs
+              exit 1
+            fi 
