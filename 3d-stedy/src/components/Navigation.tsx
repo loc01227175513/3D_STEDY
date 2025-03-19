@@ -1,40 +1,12 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+
 import Image from 'next/image';
 const Navigation = () => {
-  const pathname = usePathname();
 
-  const navItems = [
-    { href: '/', label: 'Trang chủ' },
-    { href: '/about', label: 'Về chúng tôi' },
-    { href: '/products', label: 'Sản phẩm' },
-    { href: '/contact', label: 'Liên hệ' },
-  ];
 
   return (
-    // <nav className="bg-white shadow-md">
-    //   <div className="container mx-auto px-4">
-    //     <div className="flex items-center justify-between h-16">
-    //       <div className="flex space-x-8">
-    //         {navItems.map((item) => (
-    //           <Link
-    //             key={item.href}
-    //             href={item.href}
-    //             className={`${
-    //               pathname === item.href
-    //                 ? 'text-blue-600 border-b-2 border-blue-600'
-    //                 : 'text-gray-600 hover:text-blue-600'
-    //             } px-3 py-2 text-sm font-medium`}
-    //           >
-    //             {item.label}
-    //           </Link>
-    //         ))}
-    //       </div>
-    //     </div>
-    //   </div>
-    // </nav>
     <>
     <header id="header_main" className="header_1 header-fixed">
   <div className="themesflat-container">
@@ -71,21 +43,6 @@ const Navigation = () => {
                     <li className="menu-item">
                       <a href="home-2.html">Home 2</a>
                     </li>
-                    <li className="menu-item">
-                      <a href="home-3.html">Home 3</a>
-                    </li>
-                    <li className="menu-item">
-                      <a href="home-4.html">Home 4</a>
-                    </li>
-                    <li className="menu-item">
-                      <a href="home-5.html">Home 5</a>
-                    </li>
-                    <li className="menu-item">
-                      <a href="home-6.html">Home 6</a>
-                    </li>
-                    <li className="menu-item">
-                      <a href="home-7.html">Home 7</a>
-                    </li>
                     <li className="menu-item has-item">
                       <a href="#">Home Slider Style</a>
                       <ul className="nav-sub-menu">
@@ -103,7 +60,7 @@ const Navigation = () => {
                   </ul>
                 </li>
                 <li className="menu-item">
-                  <a href="about-us.html">About us</a>
+                  <a href="/about">About us</a>
                 </li>
                 <li className="menu-item menu-item-has-children">
                   <a>Explore</a>
@@ -260,7 +217,7 @@ const Navigation = () => {
                       defaultValue=""
                       name="s"
                       title="Search for"
-                      required=""
+                      required={false}
                     />
                     <button
                       className="search search-submit"
@@ -325,7 +282,7 @@ const Navigation = () => {
               defaultValue=""
               name="s"
               title="Search for"
-              required=""
+              required={false}
             />
             <button
               className="search search-submit"
@@ -606,7 +563,7 @@ const Navigation = () => {
             defaultValue=""
             name="s"
             title="Search for"
-            required=""
+            required={false}
           />
           <button className="search search-submit" type="submit" title="Search">
             <i className="icon-search" />
