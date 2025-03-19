@@ -53,6 +53,7 @@ const Navigation = () => {
                   alt="logo"
                   width={100}
                   height={100}
+                  priority
                 />
               </Link>
             </Box>
@@ -162,6 +163,7 @@ const Navigation = () => {
               alt="logo"
               width={100}
               height={100}
+              priority
             />
           </Link>
           <IconButton onClick={handleDrawerToggle} className="canvas-nav-close">
