@@ -67,6 +67,9 @@ jobs:
           username: ${{ env.SERVER_USERNAME }}
           password: ${{ env.SERVER_PASSWORD }}
           script: |
+            # Create directory if it doesn't exist
+            mkdir -p /var/www/3d_stedy
+            
             # Pull latest image
             docker pull ${{ env.IMAGE_NAME }}:${{ github.sha }}
             
@@ -77,6 +80,18 @@ jobs:
             
             # Update deployment
             cd /var/www/3d_stedy
+            
+            # Create docker-compose.yml if it doesn't exist
+            cat > docker-compose.yml << 'EOL'
+            version: '3'
+            services:
+              app:
+                image: ${{ env.IMAGE_NAME }}:${{ github.sha }}
+                ports:
+                  - "3000:3000"
+                restart: always
+            EOL
+            
             docker-compose down
             docker system prune -f
             docker-compose up -d
