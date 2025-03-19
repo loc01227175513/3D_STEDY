@@ -7,6 +7,10 @@ import '@/assets/css/style.css';
 import '@/assets/css/responsive.css';
 import Loading from './loading';
 import { Suspense } from 'react';
+import 'swiper/css';
+import 'swiper/css/navigation';
+import 'swiper/css/pagination';
+import 'swiper/css/scrollbar';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -31,8 +35,6 @@ export default function RootLayout({
         <Script src="/assets/js/popper.min.js" strategy="beforeInteractive" async />
         <Script src="/assets/js/bootstrap.bundle.min.js" strategy="beforeInteractive" async />
         <Script src="/assets/js/bootstrap.min.js" strategy="beforeInteractive" async />
-        <Script src="/assets/js/swiper-bundle.min.js" strategy="beforeInteractive" async />
-        <Script src="/assets/js/swiper.js" strategy="beforeInteractive" async />
         <Script src="/assets/js/count-down.js" strategy="beforeInteractive" async />
         <Script src="/assets/js/simpleParallax.min.js" strategy="beforeInteractive" async />
         <Script src="/assets/js/gsap.js" strategy="beforeInteractive" async />
