@@ -11,14 +11,6 @@ module.exports = {
     'react/jsx-key': 'off',
     '@typescript-eslint/no-unused-expressions': 'off',
     'prefer-const': 'off',
-    'react-hooks/rules-of-hooks': 'off',
-    '@typescript-eslint/no-this-alias': 'off',
-    '@typescript-eslint/no-require-imports': 'off'
-  },
-  ignorePatterns: [
-    '**/*.min.js',
-    '**/bootstrap*.js',
-    '**/ScrollTrigger.js',
-    '**/SplitText.js'
-  ]
+    'react-hooks/rules-of-hooks': 'off'
+  }
 } 

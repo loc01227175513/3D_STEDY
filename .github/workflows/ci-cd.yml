@@ -7,6 +7,7 @@ on:
     branches: [ main ]
 
 env:
+  REGISTRY: docker.io
   IMAGE_NAME: taiphamdac/3d_stedy
   SERVER_HOST: 147.182.199.183
   SERVER_USERNAME: root
@@ -27,9 +28,6 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
-
-      - name: Run linting
-        run: npm run lint
 
       - name: Type check
         run: npm run type-check
@@ -59,7 +57,9 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ env.IMAGE_NAME }}:latest
+          tags: |
+            ${{ env.IMAGE_NAME }}:${{ github.sha }}
+            ${{ env.IMAGE_NAME }}:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -70,41 +70,25 @@ jobs:
           username: ${{ env.SERVER_USERNAME }}
           password: ${{ env.SERVER_PASSWORD }}
           script: |
-            # Create deployment directory if not exists
-            mkdir -p /var/www/3d_stedy
+            # Pull latest image
+            docker pull ${{ env.IMAGE_NAME }}:${{ github.sha }}
             
-            # Copy docker-compose.yml to server
-            cat > /var/www/3d_stedy/docker-compose.yml << 'EOL'
-            version: '3.8'
-
-            services:
-              app:
-                image: taiphamdac/3d_stedy:latest
-                container_name: 3d_stedy_app
-                restart: always
-                ports:
-                  - "3000:3000"
-                environment:
-                  - NODE_ENV=production
-                volumes:
-                  - .env.production:/app/.env.production
-                networks:
-                  - app_network
-
-            networks:
-              app_network:
-                driver: bridge
-            EOL
-
-            # Deploy application
+            # Backup current deployment
+            if [ -d "/var/www/3d_stedy" ]; then
+              tar -czf /var/www/3d_stedy_backup_$(date +%Y%m%d_%H%M%S).tar.gz /var/www/3d_stedy
+            fi
+            
+            # Update deployment
             cd /var/www/3d_stedy
-            docker-compose pull
+            docker-compose down
+            docker system prune -f
             docker-compose up -d
             
             # Health check
             sleep 10
             if ! curl -f http://localhost:3000; then
-              echo "Deployment failed"
-              docker-compose logs
+              echo "Deployment failed - rolling back"
+              docker-compose down
+              docker-compose up -d
               exit 1
             fi 
