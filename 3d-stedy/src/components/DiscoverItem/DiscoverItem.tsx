@@ -365,7 +365,7 @@ const DiscoverItem = () => {
                             </Box>
                         </Box>
                     </Grid>
-                    <Grid item xl={3} lg={4} md={6} sm={6} className="wow fadeInUp" data-wow-delay="0s">
+                    <Grid item xl={3} lg={4} md={6} sm={6} className="wow fadeInUp p-2" data-wow-delay="0s">
                         <Box className="tf-card-box style-1">
                             <Box className="card-media">
                                 <Button href="#">
@@ -420,7 +420,7 @@ const DiscoverItem = () => {
                             </Box>
                         </Box>
                     </Grid>
-                    <Grid item xl={3} lg={4} md={6} sm={6} className="wow fadeInUp" data-wow-delay="0.1s">
+                    <Grid item xl={3} lg={4} md={6} sm={6} className="wow fadeInUp p-2" data-wow-delay="0.1s">
                         <Box className="tf-card-box style-1">
                             <Box className="card-media">
                                 <Button href="#">
@@ -475,7 +475,7 @@ const DiscoverItem = () => {
                             </Box>
                         </Box>
                     </Grid>
-                    <Grid item xl={3} lg={4} md={6} sm={6} className="wow fadeInUp" data-wow-delay="0.2s">
+                    <Grid item xl={3} lg={4} md={6} sm={6} className="wow fadeInUp p-2" data-wow-delay="0.2s">
                         <Box className="tf-card-box style-1">
                             <Box className="card-media">
                                 <Button href="#">
@@ -530,7 +530,7 @@ const DiscoverItem = () => {
                             </Box>
                         </Box>
                     </Grid>
-                    <Grid item xl={3} lg={4} md={6} sm={6} className="wow fadeInUp" data-wow-delay="0.3s">
+                    <Grid item xl={3} lg={4} md={6} sm={6} className="wow fadeInUp p-2" data-wow-delay="0.3s">
                         <Box className="tf-card-box style-1">
                             <Box className="card-media">
                                 <Button href="#">
@@ -585,7 +585,7 @@ const DiscoverItem = () => {
                             </Box>
                         </Box>
                     </Grid>
-                    <Grid item xl={3} lg={4} md={6} sm={6} className="wow fadeInUp" data-wow-delay="0s">
+                    <Grid item xl={3} lg={4} md={6} sm={6} className="wow fadeInUp p-2" data-wow-delay="0s">
                         <Box className="tf-card-box style-1">
                             <Box className="card-media">
                                 <Button href="#">
@@ -640,7 +640,7 @@ const DiscoverItem = () => {
                             </Box>
                         </Box>
                     </Grid>
-                    <Grid item xl={3} lg={4} md={6} sm={6} className="wow fadeInUp" data-wow-delay="0.1s">
+                    <Grid item xl={3} lg={4} md={6} sm={6} className="wow fadeInUp p-2" data-wow-delay="0.1s">
                         <Box className="tf-card-box style-1">
                             <Box className="card-media">
                                 <Button href="#">
@@ -695,7 +695,7 @@ const DiscoverItem = () => {
                             </Box>
                         </Box>
                     </Grid>
-                    <Grid item xl={3} lg={4} md={6} sm={6} className="wow fadeInUp" data-wow-delay="0.2s">
+                    <Grid item xl={3} lg={4} md={6} sm={6} className="wow fadeInUp p-2" data-wow-delay="0.2s">
                         <Box className="tf-card-box style-1">
                             <Box className="card-media">
                                 <Button href="#">
@@ -750,7 +750,7 @@ const DiscoverItem = () => {
                             </Box>
                         </Box>
                     </Grid>
-                    <Grid item xl={3} lg={4} md={6} sm={6} className="wow fadeInUp" data-wow-delay="0.2s">
+                    <Grid item xl={3} lg={4} md={6} sm={6} className="wow fadeInUp p-2" data-wow-delay="0.2s">
                         <Box className="tf-card-box style-1">
                             <Box className="card-media">
                                 <Button href="#">
