@@ -3,6 +3,7 @@ import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import ShoppingBagIcon from '@mui/icons-material/ShoppingBag';
 import { Swiper, SwiperSlide } from 'swiper/react';
+import Image from 'next/image';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
@@ -44,26 +45,36 @@ const Topcollections = () => {
                     <Box className="tf-card-collection">
                       <Link href="author-2.html">
                         <Box className="media-images-collection">
-                          <img
-                            src={`assets/images/box-item/img-collection-${String(item).padStart(2, '0')}.jpg`}
+                          <Image
+                            src={`/assets/images/box-item/img-collection-${String(item).padStart(2, '0')}.jpg`}
                             alt=""
+                            width={500}
+                            height={500}
                           />
-                          <img
-                            src={`assets/images/box-item/img-collection-${String(item + 1).padStart(2, '0')}.jpg`}
+                          <Image
+                            src={`/assets/images/box-item/img-collection-${String(item + 1).padStart(2, '0')}.jpg`}
                             alt=""
+                            width={500}
+                            height={500}
                           />
-                          <img
-                            src={`assets/images/box-item/img-collection-${String(item + 2).padStart(2, '0')}.jpg`}
+                          <Image
+                            src={`/assets/images/box-item/img-collection-${String(item + 2).padStart(2, '0')}.jpg`}
                             alt=""
+                            width={500}
+                            height={500}
                           />
-                          <img
-                            src={`assets/images/box-item/img-collection-${String(item + 3).padStart(2, '0')}.jpg`}
+                          <Image
+                            src={`/assets/images/box-item/img-collection-${String(item + 3).padStart(2, '0')}.jpg`}
                             alt=""
+                            width={500}
+                            height={500}
                           />
                           <Box className="author-poster">
-                            <img
-                              src={`assets/images/avatar/avatar-${String(item % 3 + 1).padStart(2, '0')}.png`}
+                            <Image
+                              src={`/assets/images/avatar/avatar-${String(item % 3 + 1).padStart(2, '0')}.png`}
                               alt=""
+                              width={50}
+                              height={50}
                               className="w-full"
                             />
                           </Box>

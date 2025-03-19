@@ -3,7 +3,7 @@ import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/css';
 import { Autoplay } from 'swiper/modules';
-
+import Image from 'next/image';
 const Action = () => {
   return (
     <>
@@ -47,10 +47,10 @@ const Action = () => {
                     className="autoslider3reverse"
                   >
                     <SwiperSlide>
-                      <img src="assets/images/item-background/bg-action-1.png" alt="" />
+                      <Image src="/assets/images/item-background/bg-action-1.png" alt="" width={300} height={300} />
                     </SwiperSlide>
                     <SwiperSlide>
-                      <img src="assets/images/item-background/bg-action-1.png" alt="" />
+                      <Image src="/assets/images/item-background/bg-action-1.png" alt="" width={300} height={300} />
                     </SwiperSlide>
                   </Swiper>
                   <Swiper
@@ -68,10 +68,10 @@ const Action = () => {
                     className="autoslider4reverse"
                   >
                     <SwiperSlide>
-                      <img src="assets/images/item-background/bg-action-1.png" alt="" />
+                      <Image src="/assets/images/item-background/bg-action-1.png" alt="" width={300} height={300} />
                     </SwiperSlide>
                     <SwiperSlide>
-                      <img src="assets/images/item-background/bg-action-1.png" alt="" />
+                      <Image src="/assets/images/item-background/bg-action-1.png" alt="" width={300} height={300} />
                     </SwiperSlide>
                   </Swiper>
                   <Swiper
@@ -88,10 +88,10 @@ const Action = () => {
                     className="autoslider3reverse"
                   >
                     <SwiperSlide>
-                      <img src="assets/images/item-background/bg-action-1.png" alt="" />
+                      <Image src="/assets/images/item-background/bg-action-1.png" alt="" width={300} height={300} />
                     </SwiperSlide>
                     <SwiperSlide>
-                      <img src="assets/images/item-background/bg-action-1.png" alt="" />
+                      <Image src="/assets/images/item-background/bg-action-1.png" alt="" width={300} height={300} />
                     </SwiperSlide>
                   </Swiper>
                 </Box>

@@ -1,4 +1,5 @@
 import { Box, Container, Grid, Typography, Link } from '@mui/material';
+import Image from 'next/image';
 
 const Createsell = () => {
   return (
@@ -16,7 +17,7 @@ const Createsell = () => {
           <Grid item lg={3} md={6}>
             <Box className="tf-box-icon relative text-center">
               <Box className="image">
-                <img src="assets/images/box-icon/icon-01.png" alt="" />
+                <Image src="/assets/images/box-icon/icon-01.png" alt="" width={100} height={100} />
                 <Typography>Step 1</Typography>
               </Box>
               <Typography variant="h4" className="heading">
@@ -69,7 +70,7 @@ const Createsell = () => {
           <Grid item lg={3} md={6}>
             <Box className="tf-box-icon relative text-center type-1">
               <Box className="image">
-                <img src="assets/images/box-icon/icon-02.png" alt="" />
+                <Image src="/assets/images/box-icon/icon-02.png" alt="" width={100} height={100} />
                 <Typography>Step 2</Typography>
               </Box>
               <Typography variant="h4" className="heading">
@@ -123,7 +124,7 @@ const Createsell = () => {
           <Grid item lg={3} md={6}>
             <Box className="tf-box-icon relative text-center">
               <Box className="image">
-                <img src="assets/images/box-icon/icon-03.png" alt="" />
+                <Image src="/assets/images/box-icon/icon-03.png" alt="" width={100} height={100} />
                 <Typography>Step 3</Typography>
               </Box>
               <Typography variant="h4" className="heading">
@@ -176,7 +177,7 @@ const Createsell = () => {
           <Grid item lg={3} md={6}>
             <Box className="tf-box-icon relative text-center">
               <Box className="image">
-                <img src="assets/images/box-icon/icon-04.png" alt="" />
+                <Image src="/assets/images/box-icon/icon-04.png" alt="" width={100} height={100} />
                 <Typography>Step 4</Typography>
               </Box>
               <Typography variant="h4" className="heading">

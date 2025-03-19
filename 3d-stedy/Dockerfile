@@ -1,32 +1,43 @@
-# Stage 1: Build the application
-FROM node:18-alpine AS build
-ARG env
-# Set the working directory
+# Stage 1: Dependencies
+FROM node:18-alpine AS deps
 WORKDIR /app
-
-# Copy the package.json and package-lock.json (or yarn.lock)
 COPY package*.json ./
-
-# Install dependencies
 RUN npm install
 
-# Copy the rest of the application code to the working directory
+# Stage 2: Builder
+FROM node:18-alpine AS builder
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+ENV NEXT_TELEMETRY_DISABLED 1
+RUN npm run build
 
-# Build the app (production build)
-RUN npm run build:${env}
+# Stage 3: Runner
+FROM node:18-alpine AS runner
+WORKDIR /app
+ENV NODE_ENV production
+ENV NEXT_TELEMETRY_DISABLED 1
 
-ENV NODE_ENV=production
+# Copy necessary files
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
+
+# Expose port
+EXPOSE 3000
+
+# Start Next.js
+CMD ["node", "server.js"]
 
 # Stage 2: Serve the built app using Nginx
 FROM nginx:alpine
 ARG env
 
 # Copy the built files from the build stage
-COPY --from=build /app/dist /usr/share/nginx/html
+COPY --from=builder /app/.next /usr/share/nginx/html
 
 # Copy the custom Nginx configuration
-COPY nginx.${env}.conf /etc/nginx/conf.d/default.conf
+COPY nginx.production.conf /etc/nginx/conf.d/default.conf
 
 # Map the SSL certificates from the host
 VOLUME ["/etc/letsencrypt"]
