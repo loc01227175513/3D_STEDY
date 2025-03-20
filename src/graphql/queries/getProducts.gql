@@ -1,0 +1,11 @@
+query getProducts() {
+    getProducts{
+        id
+        title
+        price
+        description
+        image
+        createdAt
+        updatedAt
+    }
+}
