@@ -53,7 +53,7 @@ const FeaturedItem = () => {
                   <SwiperSlide key={item}>
                     <Box className="tf-card-box style-1">
                       <Box className="card-media">
-                        <Box component="a" href="#">
+                        <Box component="a" href="details">
                           <Box component="img" src={`assets/images/box-item/card-item-0${item > 4 ? item - 4 : item}.jpg`} alt="" />
                         </Box>
                         <IconButton className="wishlist-button">
@@ -76,7 +76,7 @@ const FeaturedItem = () => {
                       </Box>
                       
                       <Typography variant="h5" className="name">
-                        <Box component="a" href="nft-detail-2.html">Dayco serpentine belt</Box>
+                        <Box component="a" href="details">Dayco serpentine belt</Box>
                       </Typography>
                       
                       <Box className="author flex items-center">
