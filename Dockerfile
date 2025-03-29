@@ -14,10 +14,6 @@ RUN npm run build
 # Stage 3: Runner
 FROM nginx:alpine
 
-# Install Node.js and serve
-RUN apk add --no-cache nodejs npm && \
-    npm install -g serve
-
 WORKDIR /app
 
 # Copy Vite build output
@@ -35,6 +31,6 @@ COPY docker-entrypoint.sh /app/
 RUN chmod +x /app/docker-entrypoint.sh && \
     sed -i 's/\r$//' /app/docker-entrypoint.sh
 
-EXPOSE 80 3000
+EXPOSE 80
 
 CMD ["/bin/sh", "/app/docker-entrypoint.sh"]
