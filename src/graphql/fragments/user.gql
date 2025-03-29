@@ -1,0 +1,13 @@
+fragment UserFragment on User {
+  id
+  email
+  fullName
+  roles {
+    id
+    roleName
+    capabilities
+  }
+  createdAt
+  updatedAt
+  username
+}

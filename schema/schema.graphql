@@ -1,84 +1,724 @@
 """
+Indicates exactly one field must be supplied and this field must not be `null`.
+"""
+directive @oneOf on INPUT_OBJECT
+
+type Category {
+  communities: [Communities!]
+  createdAt: DateTime
+  deletedAt: DateTime
+  id: ID!
+  name: String!
+  orderIdx: Float!
+  tenantIds: JSON!
+  thumbnail: String!
+  updatedAt: DateTime
+}
+
+type CategoryPaginatedResponse {
+  items: [Category!]!
+  total: Int!
+}
+
+type Communities {
+  categories: [Category!]!
+  createdAt: DateTime
+  deletedAt: DateTime
+  description: String!
+  id: ID!
+  name: String!
+  state: String!
+  status: String!
+  thumbnail_url: String!
+  updatedAt: DateTime
+}
+
+type CommunitiesPaginatedResponse {
+  items: [Communities!]!
+  total: Int!
+}
+
+input CreateCategoryInput {
+  id: ID
+  name: String!
+  orderIdx: Float = 0
+  tenantIds: JSON!
+  thumbnail: String!
+}
+
+input CreateCommunityInput {
+  categoryIds: [ID!]
+  description: String!
+  id: ID
+  name: String!
+  state: String!
+  status: String!
+  thumbnail_url: String!
+}
+
+input CreateCustomerInfoInput {
+  address: String
+  checkoutForm: JSON
+  email: String
+  fullname: String!
+  id: ID
+  phone: String
+  storeId: String!
+  tenantId: String!
+}
+
+input CreateKitchenTemplateInput {
+  configuration: JSON
+  defaultSize: JSON!
+  description: String
+  enable: Boolean = true
+  floorPath: String
+  id: ID
+  islandPath: String
+  kitchenPath: String!
+  name: String!
+  productIds: JSON!
+  tenantId: String!
+  thumbnail: String!
+}
+
+input CreateLeadInput {
+  address: String
+  community: String
+  consultant: String
+  email: String
+  full_name: String!
+  home_specialist: String
+  lead_source: String
+  phone: String
+  productId: Float
+  sale_agent: String
+  state: String
+  status: String
+  tenantId: String
+  total_price: Float
+}
+
+input CreateProductInput {
+  SKU: String
+  brandName: String
+  code: String
+  communitiesId: String
+  description: String
+  moduleType: String
+  name: String!
+  path: String
+  position: String
+  price: Float
+  thumbnail: String
+}
+
+input CreateRoleInput {
+  capabilities: [String!]!
+  roleName: String!
+}
+
+input CreateSerieInput {
+  description: String
+  id: ID
+  name: String!
+  tenantId: String
+  thumbnail: String
+}
+
+input CreateStoreInput {
+  address: String!
+  email: String
+  id: ID
+  kitchenTemplateIds: JSON
+  name: String!
+  phone: String
+  serieIds: JSON!
+  tenantId: String
+  tenantName: String!
+  thumbnail: String
+}
+
+input CreateStyleInput {
+  default: Boolean
+  id: ID
+  name: String!
+  path: String!
+  serieIds: JSON!
+  tenantIds: JSON!
+  type: String!
+}
+
+input CreateTenantInput {
+  description: String
+  domain: String!
+  emailSender: JSON
+  id: ID
+  name: String!
+  settings: JSON
+  thumbnail: String
+}
+
+input CreateUserInput {
+  email: String!
+  fullName: String!
+  password: String!
+  username: String!
+}
+
+type CustomerInfo {
+  address: String
+  checkoutForm: JSON
+  createdAt: DateTime
+  deletedAt: DateTime
+  email: String
+  fullname: String
+  id: ID!
+  phone: String
+  storeId: String
+  tenantId: String
+  updatedAt: DateTime
+}
+
+type CustomerInfoPaginatedResponse {
+  items: [CustomerInfo!]!
+  total: Int!
+}
+
+"""
 A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
 """
 scalar DateTime
 
+input FilterCategoryInput {
+  createFrom: String
+  createTo: String
+  keyword: String
+  limit: Int = 10
+  page: Int = 1
+}
+
+input FilterCommunityInput {
+  createFrom: String
+  createTo: String
+  keyword: String
+  limit: Int = 10
+  page: Int = 1
+  status: String
+}
+
+input FilterCustomerInfoInput {
+  createFrom: String
+  createTo: String
+  keyword: String
+  limit: Int = 10
+  page: Int = 1
+  tenantId: String
+}
+
+input FilterKitchenTemplateInput {
+  createFrom: String
+  createTo: String
+  enable: Boolean
+  keyword: String
+  limit: Int = 10
+  name: String
+  page: Int = 1
+  tenantId: String
+}
+
+input FilterLeadInput {
+  createFrom: String
+  createTo: String
+  keyword: String
+  limit: Int = 10
+  page: Int = 1
+  status: String
+}
+
+input FilterProductInput {
+  communitiesId: String
+  createFrom: String
+  createTo: String
+  enable: Boolean
+  keyword: String
+  limit: Int = 10
+  page: Int = 1
+}
+
+input FilterRoleInput {
+  createFrom: String
+  createTo: String
+  keyword: String
+  limit: Int = 10
+  page: Int = 1
+}
+
+input FilterSerieInput {
+  createFrom: String
+  createTo: String
+  keyword: String
+  limit: Int = 10
+  page: Int = 1
+  tenantId: String
+}
+
+input FilterStoreInput {
+  createFrom: String
+  createTo: String
+  keyword: String
+  limit: Int = 10
+  page: Int = 1
+  tenantId: String
+}
+
+input FilterStyleInput {
+  createFrom: String
+  createTo: String
+  default: Boolean
+  keyword: String
+  limit: Int = 10
+  page: Int = 1
+  tenantId: String
+  type: String
+}
+
+input FilterTenantInput {
+  createFrom: String
+  createTo: String
+  domain: String
+  keyword: String
+  limit: Int = 10
+  page: Int = 1
+}
+
+input FilterUserInput {
+  createFrom: String
+  createTo: String
+  email: String
+  keyword: String
+  limit: Int = 10
+  page: Int = 1
+  username: String
+}
+
+"""
+The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
+"""
+scalar JSON
+
+type KitchenTemplate {
+  configuration: JSON
+  createdAt: DateTime
+  defaultSize: JSON!
+  deletedAt: DateTime
+  description: String
+  enable: Boolean!
+  floorPath: String
+  id: ID!
+  islandPath: String
+  kitchenPath: String!
+  name: String!
+  productIds: JSON!
+  tenantId: String!
+  thumbnail: String!
+  updatedAt: DateTime
+}
+
+type KitchenTemplatePaginatedResponse {
+  items: [KitchenTemplate!]!
+  total: Int!
+}
+
+type Lead {
+  address: String
+  community: String
+  consultant: String
+  createdAt: DateTime!
+  deletedAt: DateTime
+  email: String
+  full_name: String!
+  home_specialist: String
+  id: ID!
+  lead_source: String
+  phone: String
+  product: Product
+  productId: Float
+  sale_agent: String
+  state: String
+  status: String
+  tenantId: String
+  total_price: Float
+  updatedAt: DateTime!
+}
+
+type LeadPaginatedResponse {
+  items: [Lead!]!
+  total: Int!
+}
+
+input LoginInput {
+  email: String!
+  password: String!
+}
+
+type LoginResponse {
+  accessToken: String!
+  refreshToken: String!
+  user: User!
+}
+
+input LogoutInput {
+  deviceToken: String!
+}
+
 type Mutation {
-  createUser(email: String!, name: String!, password: String!): User!
-  login(email: String!, password: String!): User!
-  productCreate(product: ProductCreateInput!): ProductCreateResponse!
-}
-
-type Option {
-  id: ID!
-  name: String!
-  optionValues: [OptionValue!]!
-  position: Float!
-}
-
-type OptionValue {
-  hasVariants: Boolean!
-  id: ID!
-  name: String!
-}
-
-input OptionValueInput {
-  name: String!
+  assignRoleToUser(roleId: Int!, userId: Int!): User!
+  createCategory(createCategoryInput: CreateCategoryInput!): Category!
+  createCommunity(createCommunityInput: CreateCommunityInput!): Communities!
+  createCustomerInfo(createCustomerInfoInput: CreateCustomerInfoInput!): CustomerInfo!
+  createKitchenTemplate(createKitchenTemplateInput: CreateKitchenTemplateInput!): KitchenTemplate!
+  createLead(createLeadInput: CreateLeadInput!): Lead!
+  createProduct(createProductInput: CreateProductInput!): Product!
+  createRole(createRoleInput: CreateRoleInput!): Role!
+  createSerie(createSerieInput: CreateSerieInput!): Serie!
+  createStore(createStoreInput: CreateStoreInput!): Store!
+  createStyle(createStyleInput: CreateStyleInput!): Style!
+  createTenant(createTenantInput: CreateTenantInput!): Tenant!
+  createUser(input: CreateUserInput!): User!
+  login(input: LoginInput!): LoginResponse!
+  logout(input: LogoutInput!): Boolean!
+  refreshToken(input: RefreshTokenInput!): RefreshTokenResponse!
+  removeCategory(categoryId: ID): Boolean!
+  removeCommunity(communityId: ID): Boolean!
+  removeCustomerInfo(customerInfoId: ID!): Boolean!
+  removeKitchenTemplate(kitchenTemplateId: ID): Boolean!
+  removeLead(leadId: ID): Boolean!
+  removeProduct(id: Int!): Boolean!
+  removeRole(id: Int!): Boolean!
+  removeRoleFromUser(roleId: Int!, userId: Int!): User!
+  removeSerie(serieId: ID): Boolean!
+  removeStore(storeId: ID): Boolean!
+  removeStyle(styleId: ID): Boolean!
+  removeTenant(tenantId: ID): Boolean!
+  updateCategory(categoryId: ID, updateCategoryInput: UpdateCategoryInput): Category!
+  updateCommunity(communityId: ID, updateCommunityInput: UpdateCommunityInput): Communities!
+  updateCustomerInfo(customerInfoId: ID!, updateCustomerInfoInput: UpdateCustomerInfoInput!): CustomerInfo!
+  updateKitchenTemplate(kitchenTemplateId: ID, updateKitchenTemplateInput: UpdateKitchenTemplateInput): KitchenTemplate!
+  updateLead(leadId: ID, updateLeadInput: UpdateLeadInput): Lead!
+  updateProduct(id: Int!, updateProductInput: UpdateProductInput!): Product!
+  updateRole(updateRoleInput: UpdateRoleInput!): Role!
+  updateSerie(serieId: ID, updateSerieInput: UpdateSerieInput): Serie!
+  updateStore(storeId: ID, updateStoreInput: UpdateStoreInput): Store!
+  updateStyle(styleId: ID, updateStyleInput: UpdateStyleInput): Style!
+  updateTenant(tenantId: ID, updateTenantInput: UpdateTenantInput): Tenant!
 }
 
 type Product {
-  createdAt: DateTime!
+  SKU: String
+  availableSizes: JSON
+  brandName: String
+  code: String
+  communities: Communities
+  communitiesId: String
+  createdAt: DateTime
+  defaultSize: JSON
+  deletedAt: DateTime
   description: String
+  enable: Boolean
   id: ID!
-  image: String!
-  price: Float!
-  title: String!
-  updatedAt: DateTime!
-}
-
-input ProductCreateInput {
-  description: String
-  image: String!
-  price: Float!
-  productOptions: [ProductOptionInput!]!
-  title: String!
-}
-
-type ProductCreateResponse {
-  product: ProductData
-  userErrors: [UserError!]!
-}
-
-type ProductData {
-  createdAt: DateTime!
-  description: String
-  id: ID!
-  image: String!
-  options: [Option!]!
-  price: Float!
-  title: String!
-  updatedAt: DateTime!
-}
-
-input ProductOptionInput {
+  moduleType: String
   name: String!
-  values: [OptionValueInput!]!
+  note: String
+  offset: JSON
+  path: String!
+  position: String
+  price: Float
+  serieIds: JSON
+  storeIds: JSON
+  thumbnail: String!
+  updatedAt: DateTime
+}
+
+type ProductPaginatedResponse {
+  items: [Product!]!
+  total: Int!
 }
 
 type Query {
-  getProducts: [Product!]!
+  categories(filter: FilterCategoryInput): CategoryPaginatedResponse!
+  category(categoryId: ID): Category!
+  categoryAdmin: Category!
+  communities(filter: FilterCommunityInput): CommunitiesPaginatedResponse!
+  community(communityId: ID): Communities!
+  communityAdmin: Communities!
+  customerInfo(customerInfoId: ID!): CustomerInfo!
+  customerInfoAdmin: CustomerInfo!
+  customerInfos(filter: FilterCustomerInfoInput): CustomerInfoPaginatedResponse!
   getUserById(id: Int!): User!
-  getUsers: [User!]!
+  getUserWithRoles(id: Int!): User!
+  getUsers(filter: FilterUserInput): UserPaginatedResponse!
+  kitchenTemplate(kitchenTemplateId: ID): KitchenTemplate!
+  kitchenTemplateAdmin: KitchenTemplate!
+  kitchenTemplates(filter: FilterKitchenTemplateInput): KitchenTemplatePaginatedResponse!
+  lead(leadId: ID): Lead!
+  leadAdmin: Lead!
+  leads(filter: FilterLeadInput): LeadPaginatedResponse!
+  me: User!
+  product(id: Int!): Product!
+  productAdmin: Product!
+  products(filter: FilterProductInput): ProductPaginatedResponse!
+  publicCategories(filter: FilterCategoryInput): CategoryPaginatedResponse!
+  publicCommunities(filter: FilterCommunityInput): CommunitiesPaginatedResponse!
+  publicCustomerInfos(filter: FilterCustomerInfoInput): CustomerInfoPaginatedResponse!
+  publicKitchenTemplates(filter: FilterKitchenTemplateInput): KitchenTemplatePaginatedResponse!
+  publicLeads(filter: FilterLeadInput): LeadPaginatedResponse!
+  publicProducts(filter: FilterProductInput): ProductPaginatedResponse!
+  publicSeries(filter: FilterSerieInput): SeriePaginatedResponse!
+  publicStores(filter: FilterStoreInput): StorePaginatedResponse!
+  publicStyles(filter: FilterStyleInput): StylePaginatedResponse!
+  publicTenants(filter: FilterTenantInput): TenantPaginatedResponse!
+  role(id: Int!): Role!
+  roleByName(roleName: String!): Role!
+  roles(filter: FilterRoleInput): RolePaginatedResponse!
+  serie(serieId: ID): Serie!
+  serieAdmin: Serie!
+  series(filter: FilterSerieInput): SeriePaginatedResponse!
+  store(storeId: ID): Store!
+  storeAdmin: Store!
+  stores(filter: FilterStoreInput): StorePaginatedResponse!
+  style(styleId: ID): Style!
+  styleAdmin: Style!
+  styles(filter: FilterStyleInput): StylePaginatedResponse!
+  tenant(tenantId: ID): Tenant!
+  tenantAdmin: Tenant!
+  tenants(filter: FilterTenantInput): TenantPaginatedResponse!
+}
+
+input RefreshTokenInput {
+  refreshToken: String!
+}
+
+type RefreshTokenResponse {
+  accessToken: String!
+  refreshToken: String!
+}
+
+type Role {
+  capabilities: [String!]!
+  createdAt: DateTime!
+  id: Int!
+  roleName: String!
+  updatedAt: DateTime!
+}
+
+type RolePaginatedResponse {
+  items: [Role!]!
+  total: Int!
+}
+
+type Serie {
+  createdAt: DateTime
+  deletedAt: DateTime
+  description: String
+  id: ID!
+  name: String!
+  tenantId: String
+  thumbnail: String
+  updatedAt: DateTime
+}
+
+type SeriePaginatedResponse {
+  items: [Serie!]!
+  total: Int!
+}
+
+type Store {
+  address: String!
+  createdAt: DateTime
+  deletedAt: DateTime
+  email: String
+  id: ID!
+  kitchenTemplateIds: JSON
+  name: String!
+  phone: String
+  serieIds: JSON!
+  tenantId: String
+  tenantName: String!
+  thumbnail: String
+  updatedAt: DateTime
+}
+
+type StorePaginatedResponse {
+  items: [Store!]!
+  total: Int!
+}
+
+type Style {
+  createdAt: DateTime
+  default: Boolean
+  deletedAt: DateTime
+  id: ID!
+  name: String
+  path: String
+  serieIds: JSON
+  tenantIds: JSON
+  type: String
+  updatedAt: DateTime
+}
+
+type StylePaginatedResponse {
+  items: [Style!]!
+  total: Int!
+}
+
+type Tenant {
+  createdAt: DateTime
+  description: String
+  domain: String
+  emailSender: JSON
+  id: ID!
+  name: String!
+  settings: JSON
+  thumbnail: String
+  updatedAt: DateTime
+}
+
+type TenantPaginatedResponse {
+  items: [Tenant!]!
+  total: Int!
+}
+
+input UpdateCategoryInput {
+  name: String
+  orderIdx: Float
+  tenantIds: JSON
+  thumbnail: String
+}
+
+input UpdateCommunityInput {
+  categoryIds: [ID!]
+  description: String
+  name: String
+  state: String
+  status: String
+  thumbnail_url: String
+}
+
+input UpdateCustomerInfoInput {
+  address: String
+  checkoutForm: JSON
+  email: String
+  fullname: String
+  phone: String
+  storeId: String
+  tenantId: String
+}
+
+input UpdateKitchenTemplateInput {
+  configuration: JSON
+  defaultSize: JSON
+  description: String
+  enable: Boolean
+  floorPath: String
+  islandPath: String
+  kitchenPath: String
+  name: String
+  productIds: JSON
+  tenantId: String
+  thumbnail: String
+}
+
+input UpdateLeadInput {
+  address: String
+  community: String
+  consultant: String
+  email: String
+  full_name: String
+  home_specialist: String
+  id: ID!
+  lead_source: String
+  phone: String
+  productId: Float
+  sale_agent: String
+  state: String
+  status: String
+  tenantId: String
+  total_price: Float
+}
+
+input UpdateProductInput {
+  SKU: String
+  brandName: String
+  code: String
+  communitiesId: String
+  description: String
+  enable: Boolean
+  moduleType: String
+  name: String
+  path: String
+  position: String
+  price: Float
+  thumbnail: String
+}
+
+input UpdateRoleInput {
+  capabilities: [String!]
+  id: Int!
+  roleName: String
+}
+
+input UpdateSerieInput {
+  description: String
+  name: String
+  tenantId: String
+  thumbnail: String
+}
+
+input UpdateStoreInput {
+  address: String
+  email: String
+  kitchenTemplateIds: JSON
+  name: String
+  phone: String
+  serieIds: JSON
+  tenantId: String
+  tenantName: String
+  thumbnail: String
+}
+
+input UpdateStyleInput {
+  default: Boolean
+  name: String
+  path: String
+  serieIds: JSON
+  tenantIds: JSON
+  type: String
+}
+
+input UpdateTenantInput {
+  description: String
+  domain: String
+  emailSender: JSON
+  name: String
+  settings: JSON
+  thumbnail: String
 }
 
 type User {
+  accessToken: String
+  createdAt: DateTime!
   email: String!
+  fullName: String!
   id: Int!
-  name: String!
-  password: String
+  password: String!
+  refreshToken: String
+  roles: [Role!]
+  updatedAt: DateTime!
+  username: String!
 }
 
-type UserError {
-  field: String!
-  message: String!
+type UserPaginatedResponse {
+  items: [User!]!
+  total: Int!
 }

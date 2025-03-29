@@ -2,14 +2,14 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches: [ main ]
+    branches: [ build-docker ]
   pull_request:
-    branches: [ main ]
+    branches: [ build-docker ]
 
 env:
   REGISTRY: docker.io
   IMAGE_NAME: taiphamdac/3d_stedy
-  SERVER_HOST: 147.182.199.183
+  SERVER_HOST: 64.23.206.54
   SERVER_USERNAME: root
   SERVER_PASSWORD: ${{ secrets.PASSWORD }}
 

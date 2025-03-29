@@ -1,0 +1,55 @@
+overwrite: true
+schema:
+  - schema/schema.graphql
+documents:
+  - src/**/*.graphql
+  - src/**/*.gql
+generates:
+  src/graphql/type.interface.ts:
+    plugins:
+      - typescript
+    config:
+      constEnums: false
+      enumsAsTypes: false
+      numericEnums: false
+      futureProofEnums: false
+      enumsAsConst: false
+      avoidOptionals: false
+      skipTypename: false
+      nonOptionalTypename: false
+      scalars:
+        DateTime: string
+        JSON: any
+        ID: string
+  src/graphql/fragments/:
+    preset: near-operation-file
+    presetConfig:
+      extension: .generated.tsx
+      baseTypesPath: ../type.interface.ts
+    plugins:
+      - typescript-operations
+      - typescript-urql
+    config:
+      fragmentMasking: false
+  src/graphql/mutations/:
+    preset: near-operation-file
+    presetConfig:
+      extension: .generated.tsx
+      baseTypesPath: ../type.interface.ts
+      importFragmentTypesFrom: ../fragments/
+    plugins:
+      - typescript-operations
+      - typescript-urql
+    config:
+      fragmentMasking: false
+  src/graphql/queries/:
+    preset: near-operation-file
+    presetConfig:
+      extension: .generated.tsx
+      baseTypesPath: ../type.interface.ts
+      importFragmentTypesFrom: ../fragments/
+    plugins:
+      - typescript-operations
+      - typescript-urql
+    config:
+      fragmentMasking: false

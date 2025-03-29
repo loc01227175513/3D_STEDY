@@ -1,8 +1,0 @@
-query getUserById($id: Int!) {
-  getUserById(id: $id) {
-    id
-    name
-    email
-    password
-  }
-}
