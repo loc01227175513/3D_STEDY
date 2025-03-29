@@ -12,10 +12,10 @@ COPY . .
 RUN npm run build
 
 # Stage 3: Runner
-FROM node:18-alpine
+FROM nginx:alpine
 
-# Install nginx and serve
-RUN apk add --no-cache nginx curl && \
+# Install Node.js and serve
+RUN apk add --no-cache nodejs npm && \
     npm install -g serve
 
 WORKDIR /app
@@ -30,10 +30,11 @@ COPY nginx.production.conf /etc/nginx/conf.d/default.conf
 # Create nginx cache directory
 RUN mkdir -p /var/cache/nginx
 
-# Copy and set up entrypoint script
-COPY docker-entrypoint.sh /
-RUN chmod +x /docker-entrypoint.sh
+# Copy entrypoint script
+COPY docker-entrypoint.sh /app/
+RUN chmod +x /app/docker-entrypoint.sh && \
+    sed -i 's/\r$//' /app/docker-entrypoint.sh
 
 EXPOSE 80 3000
 
-ENTRYPOINT ["/docker-entrypoint.sh"]
+CMD ["/bin/sh", "/app/docker-entrypoint.sh"]
