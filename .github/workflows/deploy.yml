@@ -21,7 +21,7 @@ jobs:
             mkdir -p /var/www/3d_stedy
             
             # Pull latest image
-            docker pull taiphamdac/3d_stedy:7d078432a49eec78ee85254203b9de2a81db7c4a
+            docker pull taiphamdac/3d_stedy:1d54bc8f795a8ca1426c1dbcdd046ddb10caa648
             
             # Backup current deployment
             if [ -d "/var/www/3d_stedy" ]; then
@@ -36,7 +36,7 @@ jobs:
             version: '3'
             services:
               app:
-                image: taiphamdac/3d_stedy:7d078432a49eec78ee85254203b9de2a81db7c4a
+                image: taiphamdac/3d_stedy:1d54bc8f795a8ca1426c1dbcdd046ddb10caa648
                 ports:
                   - "80:80"
                 restart: always
@@ -63,24 +63,37 @@ jobs:
             # Start the new deployment
             docker-compose up -d
             
-            # Wait for container to be healthy
-            echo "Waiting for container to be healthy..."
+            # Wait for container to start
+            echo "Waiting for container to start..."
+            sleep 30
+            
+            # Check container status
+            if ! docker ps | grep -q "3d_stedy-app-1"; then
+              echo "Container failed to start"
+              docker-compose logs
+              exit 1
+            fi
+            
+            # Check container health
+            echo "Checking container health..."
             for i in {1..30}; do
-              if docker ps | grep -q "healthy"; then
+              if curl -f http://localhost:80/health; then
                 echo "Container is healthy!"
                 break
               fi
               if [ $i -eq 30 ]; then
-                echo "Container failed to become healthy"
+                echo "Container failed health check"
                 docker-compose logs
                 exit 1
               fi
+              echo "Waiting for container to be healthy... ($i/30)"
               sleep 2
             done
             
             # Final health check
             if ! curl -f http://localhost:80/health; then
               echo "Deployment failed - rolling back"
+              docker-compose logs
               docker-compose down
               docker-compose up -d
               exit 1
