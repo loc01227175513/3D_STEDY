@@ -5,7 +5,7 @@ import useDrawerTemplateOpen from '@/store/drawerTemplateOpen';
 import useToolbarStore from '@/store/Toolbar';
 import View3dIcon from '@mui/icons-material/ViewInAr';
 import ViewModuleIcon from '@mui/icons-material/ViewModule';
-import VrPanoIcon from '@mui/icons-material/VrPano';
+import ThreeSixtyIcon from '@mui/icons-material/ThreeSixty';
 import { Box, Button, ButtonGroup, Drawer, Stack, Typography } from '@mui/material';
 import { Outlet, useNavigate } from 'react-router-dom';
 
@@ -152,7 +152,7 @@ const LayoutDesign = (): React.JSX.Element => {
                 3D
               </Button>
               <Button
-                startIcon={<VrPanoIcon />}
+                startIcon={<ThreeSixtyIcon />}
                 onClick={() => handleViewModeChange('VIRTUAL')}
                 sx={buttonStyles.viewModeButton(viewMode === 'VIRTUAL')}
               >
