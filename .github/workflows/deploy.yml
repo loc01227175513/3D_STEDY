@@ -1,0 +1,87 @@
+name: Deploy to Server
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Deploy to Server
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USERNAME }}
+          password: ${{ secrets.SERVER_PASSWORD }}
+          script: |
+            # Create directory if it doesn't exist
+            mkdir -p /var/www/3d_stedy
+            
+            # Pull latest image
+            docker pull taiphamdac/3d_stedy:7d078432a49eec78ee85254203b9de2a81db7c4a
+            
+            # Backup current deployment
+            if [ -d "/var/www/3d_stedy" ]; then
+              tar -czf /var/www/3d_stedy_backup_$(date +%Y%m%d_%H%M%S).tar.gz /var/www/3d_stedy
+            fi
+            
+            # Update deployment
+            cd /var/www/3d_stedy
+            
+            # Create docker-compose.yml if it doesn't exist
+            cat > docker-compose.yml << 'EOL'
+            version: '3'
+            services:
+              app:
+                image: taiphamdac/3d_stedy:7d078432a49eec78ee85254203b9de2a81db7c4a
+                ports:
+                  - "80:80"
+                restart: always
+                healthcheck:
+                  test: ["CMD", "curl", "-f", "http://localhost:80/health"]
+                  interval: 30s
+                  timeout: 10s
+                  retries: 3
+                  start_period: 40s
+                networks:
+                  - app_network
+
+            networks:
+              app_network:
+                driver: bridge
+            EOL
+            
+            # Stop and remove existing containers
+            docker-compose down || true
+            
+            # Clean up unused resources
+            docker system prune -f
+            
+            # Start the new deployment
+            docker-compose up -d
+            
+            # Wait for container to be healthy
+            echo "Waiting for container to be healthy..."
+            for i in {1..30}; do
+              if docker ps | grep -q "healthy"; then
+                echo "Container is healthy!"
+                break
+              fi
+              if [ $i -eq 30 ]; then
+                echo "Container failed to become healthy"
+                docker-compose logs
+                exit 1
+              fi
+              sleep 2
+            done
+            
+            # Final health check
+            if ! curl -f http://localhost:80/health; then
+              echo "Deployment failed - rolling back"
+              docker-compose down
+              docker-compose up -d
+              exit 1
+            fi 

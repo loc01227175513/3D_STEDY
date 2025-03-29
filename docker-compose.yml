@@ -1,1 +1,19 @@
- 
+version: '3'
+services:
+  app:
+    image: taiphamdac/3d_stedy:7d078432a49eec78ee85254203b9de2a81db7c4a
+    ports:
+      - "80:80"
+    restart: always
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - app_network
+
+networks:
+  app_network:
+    driver: bridge 
