@@ -82,25 +82,49 @@ jobs:
             cd /var/www/3d_stedy
             
             # Create docker-compose.yml if it doesn't exist
-            cat > docker-compose.yml << 'EOL'
+            cat > docker-compose.yml << EOL
             version: '3'
             services:
               app:
                 image: ${{ env.IMAGE_NAME }}:${{ github.sha }}
                 ports:
-                  - "3000:3000"
+                  - "80:80"
                 restart: always
+                healthcheck:
+                  test: ["CMD", "curl", "-f", "http://localhost:80/health"]
+                  interval: 30s
+                  timeout: 10s
+                  retries: 3
+                  start_period: 40s
             EOL
             
             docker-compose down
             docker system prune -f
             docker-compose up -d
             
-            # Health check
-            sleep 10
-            if ! curl -f http://localhost:3000; then
-              echo "Deployment failed - rolling back"
-              docker-compose down
-              docker-compose up -d
+            # Wait for container to start
+            echo "Waiting for container to start..."
+            sleep 30
+            
+            # Check container status
+            if ! docker ps | grep -q "3d_stedy-app-1"; then
+              echo "Container failed to start"
+              docker-compose logs
               exit 1
-            fi 
+            fi
+            
+            # Health check
+            echo "Checking container health..."
+            for i in {1..10}; do
+              if curl -f http://localhost:80/health; then
+                echo "Health check passed!"
+                break
+              fi
+              if [ $i -eq 10 ]; then
+                echo "Health check failed"
+                docker-compose logs
+                exit 1
+              fi
+              echo "Waiting for service to be ready... ($i/10)"
+              sleep 3
+            done 
