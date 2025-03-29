@@ -1,24 +1,24 @@
 #!/bin/sh
 
-# Start Next.js
-echo "Starting Next.js server..."
-node server.js &
+# Start static file server for dev purposes
+echo "Starting static file server..."
+cd dist && npx serve -l 3000 &
 
-# Wait for Next.js to be ready
-wait_for_nextjs() {
-    echo "Đang đợi Next.js khởi động..."
+# Wait for server to be ready
+wait_for_server() {
+    echo "Waiting for static server to start..."
     while true; do
         if curl -s http://localhost:3000 > /dev/null; then
-            echo "✓ Next.js đã sẵn sàng!"
+            echo "✓ Static server is ready!"
             break
         fi
-        echo "⌛ Đang đợi Next.js... (Ctrl+C để dừng)"
+        echo "⌛ Waiting for server... (Ctrl+C to stop)"
         sleep 2
     done
 }
 
-wait_for_nextjs
+wait_for_server
 
 # Start Nginx
-echo "Khởi động Nginx..."
+echo "Starting Nginx..."
 nginx -g 'daemon off;' 

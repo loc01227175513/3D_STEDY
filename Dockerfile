@@ -9,20 +9,19 @@ FROM node:18-alpine AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-ENV NEXT_TELEMETRY_DISABLED 1
 RUN npm run build
 
 # Stage 3: Runner
 FROM node:18-alpine
 
-# Install nginx
-RUN apk add --no-cache nginx curl
+# Install nginx and serve
+RUN apk add --no-cache nginx curl && \
+    npm install -g serve
 
 WORKDIR /app
 
-# Copy Next.js standalone build
-COPY --from=builder /app/.next/standalone ./
-COPY --from=builder /app/.next/static ./.next/static
+# Copy Vite build output
+COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/public ./public
 
 # Copy nginx configuration
