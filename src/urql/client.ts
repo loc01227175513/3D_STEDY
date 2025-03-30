@@ -1,11 +1,10 @@
 import { getAccessToken } from '@/utils/storage';
+import { GRAPHQL_URL } from '@/utils/apiConfig';
 import { cacheExchange, createClient, fetchExchange } from 'urql';
-
-const API_URL = `${import.meta.env.VITE_PUBLIC_API_DOMAIN || ''}${import.meta.env.VITE_PUBLIC_API_URL || ''}`;
 
 // Configure urql client with authentication token and standard exchanges
 export const urqlClient = createClient({
-  url: API_URL,
+  url: GRAPHQL_URL,
   fetchOptions: () => {
     const token = getAccessToken();
     return {

@@ -4,12 +4,9 @@ set -e
 # Echo for debugging
 echo "Starting container setup..."
 
-# Optional: Replace API domain in configuration if provided via environment
-if [ ! -z "$VITE_PUBLIC_API_DOMAIN" ]; then
-  echo "Setting API domain to: $VITE_PUBLIC_API_DOMAIN"
-  # Replace in nginx configuration
-  sed -i "s|http://137.184.13.30:3000|$VITE_PUBLIC_API_DOMAIN|g" /etc/nginx/conf.d/default.conf
-fi
+# This is important: we do NOT want to replace the API domain in the NGINX configuration
+# The front-end is served on 64.23.206.54:3000 but should make API calls to 137.184.13.30:3000
+echo "Using API domain: http://137.184.13.30:3000"
 
 # Ensure permissions are correct
 echo "Setting permissions..."

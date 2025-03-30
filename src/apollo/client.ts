@@ -5,6 +5,7 @@ import {
 } from '@/graphql/mutations/refreshToken.generated';
 import { paths } from '@/paths.config';
 import { getAccessToken, getRefreshToken, removeAllToken, saveAccessToken, saveRefreshToken } from '@/utils/storage';
+import { GRAPHQL_URL } from '@/utils/apiConfig';
 import { 
   ApolloClient, 
   from, 
@@ -20,14 +21,14 @@ import { GraphQLWsLink } from '@apollo/client/link/subscriptions';
 import { getMainDefinition } from '@apollo/client/utilities';
 import { createClient } from 'graphql-ws';
 
-// Lấy URL từ biến môi trường
+// Use the centralized GraphQL URL
 const httpLink = new HttpLink({
-  uri: `${import.meta.env.VITE_PUBLIC_API_DOMAIN || ''}${import.meta.env.VITE_PUBLIC_API_URL || ''}`,
+  uri: GRAPHQL_URL,
   includeExtensions: true,
 });
 
-const API_URL = `${import.meta.env.VITE_PUBLIC_API_DOMAIN || ''}${import.meta.env.VITE_PUBLIC_API_URL || ''}`;
-const wsUrl = API_URL.replace(/^https?/, 'wss');
+// Use the centralized GraphQL URL for WebSocket as well
+const wsUrl = GRAPHQL_URL.replace(/^https?/, 'wss');
 
 const authLink = setContext((_, { headers }) => {
   const token = getAccessToken() || '';
