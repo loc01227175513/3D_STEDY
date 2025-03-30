@@ -3,7 +3,6 @@ import { DRAWER_WIDTH, MainContent, MainContentShift } from '@/pages/public/styl
 import { paths } from '@/paths.config';
 import useDrawerTemplateOpen from '@/store/drawerTemplateOpen';
 import useToolbarStore from '@/store/Toolbar';
-import { ViewInAr as ViewInArIcon, ViewModule as ViewModuleIcon, Vrpano as VrPanoIcon } from '@mui/icons-material';
 import { Box, Button, ButtonGroup, Drawer, Stack, Typography } from '@mui/material';
 import { Outlet, useNavigate } from 'react-router-dom';
 
@@ -11,6 +10,7 @@ import BoxImage from '@/components/boxImage';
 import DrawerHeaderComponent from '@/components/button/DrawerHeader';
 import FloatingToolbar from '@/components/floatingToolbar/floatingToolbar';
 import Modal from '@/components/modal/Modal';
+import Icon, { KnownIcons } from '@/components/Icon';
 
 import GroupPrice from '../checkOut/groupPrice';
 import { buttonStyles } from './components';
@@ -136,21 +136,21 @@ const LayoutDesign = (): React.JSX.Element => {
 
             <ButtonGroup variant="contained" sx={buttonStyles.viewModeButtonGroup}>
               <Button
-                startIcon={<ViewModuleIcon />}
+                startIcon={KnownIcons.ViewModule ? <KnownIcons.ViewModule /> : null}
                 onClick={() => handleViewModeChange('2D')}
                 sx={buttonStyles.viewModeButton(viewMode === '2D')}
               >
                 2D
               </Button>
               <Button
-                startIcon={<ViewInArIcon />}
+                startIcon={KnownIcons.ViewInAr ? <KnownIcons.ViewInAr /> : null}
                 onClick={() => handleViewModeChange('3D')}
                 sx={buttonStyles.viewModeButton(viewMode === '3D')}
               >
                 3D
               </Button>
               <Button
-                startIcon={<VrPanoIcon />}
+                startIcon={KnownIcons.VrPano ? <KnownIcons.VrPano /> : null}
                 onClick={() => handleViewModeChange('VIRTUAL')}
                 sx={buttonStyles.viewModeButton(viewMode === 'VIRTUAL')}
               >
