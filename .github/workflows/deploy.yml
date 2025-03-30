@@ -10,6 +10,46 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Update API configuration
+        run: |
+          sed -i 's|VITE_PUBLIC_API_DOMAIN="http://137.184.13.30:3000"|VITE_PUBLIC_API_DOMAIN="http://64.23.206.54:3000"|g' .env.production
+
+      - name: Build application
+        run: npm run build
+        
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: taiphamdac
+          password: ${{ secrets.DOCKER_PASSWORD }}
+          
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: |
+            taiphamdac/3d_stedy:${{ github.sha }}
+            taiphamdac/3d_stedy:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            NODE_ENV=production
+            VITE_PUBLIC_API_DOMAIN=http://64.23.206.54:3000
+            VITE_PUBLIC_API_URL=/graphql
+      
       - name: Deploy to Server
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -21,7 +61,7 @@ jobs:
             mkdir -p /var/www/3d_stedy
             
             # Pull latest image
-            docker pull taiphamdac/3d_stedy:1d54bc8f795a8ca1426c1dbcdd046ddb10caa648
+            docker pull taiphamdac/3d_stedy:${{ github.sha }}
             
             # Backup current deployment
             if [ -d "/var/www/3d_stedy" ]; then
@@ -32,14 +72,18 @@ jobs:
             cd /var/www/3d_stedy
             
             # Create docker-compose.yml if it doesn't exist
-            cat > docker-compose.yml << 'EOL'
+            cat > docker-compose.yml << EOL
             version: '3'
             services:
               app:
-                image: taiphamdac/3d_stedy:1d54bc8f795a8ca1426c1dbcdd046ddb10caa648
+                image: taiphamdac/3d_stedy:${{ github.sha }}
                 ports:
-                  - "80:80"
+                  - "3000:80"
                 restart: always
+                environment:
+                  - NODE_ENV=production
+                  - VITE_PUBLIC_API_DOMAIN=http://64.23.206.54:3000
+                  - VITE_PUBLIC_API_URL=/graphql
                 healthcheck:
                   test: ["CMD", "curl", "-f", "http://localhost:80/health"]
                   interval: 30s
@@ -74,27 +118,18 @@ jobs:
               exit 1
             fi
             
-            # Check container health
+            # Health check
             echo "Checking container health..."
-            for i in {1..30}; do
-              if curl -f http://localhost:80/health; then
-                echo "Container is healthy!"
+            for i in {1..20}; do
+              if curl -f http://localhost:3000/health; then
+                echo "Health check passed!"
                 break
               fi
-              if [ $i -eq 30 ]; then
-                echo "Container failed health check"
+              if [ $i -eq 20 ]; then
+                echo "Health check failed"
                 docker-compose logs
                 exit 1
               fi
-              echo "Waiting for container to be healthy... ($i/30)"
-              sleep 2
-            done
-            
-            # Final health check
-            if ! curl -f http://localhost:80/health; then
-              echo "Deployment failed - rolling back"
-              docker-compose logs
-              docker-compose down
-              docker-compose up -d
-              exit 1
-            fi 
+              echo "Waiting for service to be ready... ($i/20)"
+              sleep 5
+            done 

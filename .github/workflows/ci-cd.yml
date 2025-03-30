@@ -2,9 +2,9 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches: [ build-docker ]
+    branches: [ build-docker, main ]
   pull_request:
-    branches: [ build-docker ]
+    branches: [ build-docker, main ]
 
 env:
   REGISTRY: docker.io
@@ -29,13 +29,17 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Update API configuration
+        run: |
+          sed -i 's|VITE_PUBLIC_API_DOMAIN="http://137.184.13.30:3000"|VITE_PUBLIC_API_DOMAIN="http://64.23.206.54:3000"|g' .env.production
+
       - name: Build application
         run: npm run build
 
   deploy:
     needs: build-and-test
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/build-docker'
+    if: github.ref == 'refs/heads/build-docker' || github.ref == 'refs/heads/main'
 
     steps:
       - uses: actions/checkout@v4
@@ -59,6 +63,10 @@ jobs:
             ${{ env.IMAGE_NAME }}:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          build-args: |
+            NODE_ENV=production
+            VITE_PUBLIC_API_DOMAIN=http://64.23.206.54:3000
+            VITE_PUBLIC_API_URL=/graphql
 
       - name: Deploy to server
         uses: appleboy/ssh-action@v1.0.3
@@ -90,16 +98,31 @@ jobs:
                 ports:
                   - "3000:80"
                 restart: always
+                environment:
+                  - NODE_ENV=production
+                  - VITE_PUBLIC_API_DOMAIN=http://64.23.206.54:3000
+                  - VITE_PUBLIC_API_URL=/graphql
                 healthcheck:
                   test: ["CMD", "curl", "-f", "http://localhost:80/health"]
                   interval: 30s
                   timeout: 10s
                   retries: 3
                   start_period: 40s
+                networks:
+                  - app_network
+
+            networks:
+              app_network:
+                driver: bridge
             EOL
             
-            docker-compose down
+            # Stop and remove existing containers
+            docker-compose down || true
+            
+            # Clean up unused resources
             docker system prune -f
+            
+            # Start the new deployment
             docker-compose up -d
             
             # Wait for container to start
@@ -115,16 +138,16 @@ jobs:
             
             # Health check
             echo "Checking container health..."
-            for i in {1..10}; do
+            for i in {1..20}; do
               if curl -f http://localhost:3000/health; then
                 echo "Health check passed!"
                 break
               fi
-              if [ $i -eq 10 ]; then
+              if [ $i -eq 20 ]; then
                 echo "Health check failed"
                 docker-compose logs
                 exit 1
               fi
-              echo "Waiting for service to be ready... ($i/10)"
-              sleep 3
+              echo "Waiting for service to be ready... ($i/20)"
+              sleep 5
             done 
