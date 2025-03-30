@@ -12,6 +12,8 @@ import {
   fullNameContainerStyle,
   fullNameStyle,
 } from './style/index';
+import { AuthGuard } from '@/components/auth/authGuard';
+import { Outlet } from 'react-router';
 
 interface LeadRow extends Record<string, unknown> {
   id: number;
@@ -207,16 +209,19 @@ const Dashboard = (): React.JSX.Element => {
   };
 
   return (
-    <Box sx={dashboardContainerStyle}>
-      <DataGrid<LeadRow>
-        columns={columns}
-        rows={rows}
-        getRowId={(row) => row.id}
-        onRowClick={handleRowClick}
+    <AuthGuard>
+      <Box sx={dashboardContainerStyle}>
+        <DataGrid<LeadRow>
+          columns={columns}
+          rows={rows}
+          getRowId={(row) => row.id}
+          onRowClick={handleRowClick}
         customRowAction={rowActions}
         defaultRowsPerPage={7}
       />
     </Box>
+    <Outlet />
+    </AuthGuard>
   );
 };
 

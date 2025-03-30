@@ -12,7 +12,6 @@ env:
   SERVER_HOST: 64.23.206.54
   SERVER_USERNAME: root
   SERVER_PASSWORD: ${{ secrets.PASSWORD }}
-  API_HOST: 137.184.13.30:3000
 
 jobs:
   build-and-test:
@@ -30,20 +29,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Check and update API configuration
+      - name: Update API configuration
         run: |
-          echo "Current API configuration:"
-          cat .env.production
-          echo "Creating new .env.production with correct API endpoint"
-          cp .env.production .env.production.bak
-          echo "NODE_ENV=production" > .env.production
-          echo "VITE_NAME_ENV=production" >> .env.production
-          echo "VITE_PUBLIC_API_URL=\"/graphql\"" >> .env.production
-          echo "VITE_PUBLIC_API_DOMAIN=\"http://${{ env.API_HOST }}\"" >> .env.production
-          echo "" >> .env.production
-          tail -n +5 .env.production.bak >> .env.production
-          echo "Updated API configuration:"
-          cat .env.production
+          sed -i 's|VITE_PUBLIC_API_DOMAIN="http://137.184.13.30:3000"|VITE_PUBLIC_API_DOMAIN="http://64.23.206.54:3000"|g' .env.production
 
       - name: Build application
         run: npm run build
@@ -77,7 +65,7 @@ jobs:
           cache-to: type=gha,mode=max
           build-args: |
             NODE_ENV=production
-            VITE_PUBLIC_API_DOMAIN=http://${{ env.API_HOST }}
+            VITE_PUBLIC_API_DOMAIN=http://64.23.206.54:3000
             VITE_PUBLIC_API_URL=/graphql
 
       - name: Deploy to server
@@ -110,8 +98,12 @@ jobs:
                 ports:
                   - "3000:80"
                 restart: always
+                environment:
+                  - NODE_ENV=production
+                  - VITE_PUBLIC_API_DOMAIN=http://64.23.206.54:3000
+                  - VITE_PUBLIC_API_URL=/graphql
                 healthcheck:
-                  test: ["CMD", "curl", "-f", "http://localhost/health"]
+                  test: ["CMD", "curl", "-f", "http://localhost:80/health"]
                   interval: 30s
                   timeout: 10s
                   retries: 3

@@ -9,26 +9,28 @@ FROM node:18-alpine AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-# Đảm bảo API endpoint đúng trong .env.production
-RUN echo "Updating API endpoint configuration..."
-RUN cat .env.production
 RUN npm run build
 
 # Stage 3: Runner
 FROM nginx:alpine
 
-# Copy Vite build output to correct location
-COPY --from=builder /app/dist /usr/share/nginx/html
+WORKDIR /app
+
+# Copy Vite build output
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/public ./public
 
 # Copy nginx configuration
 COPY nginx.production.conf /etc/nginx/conf.d/default.conf
 
-# Add health check endpoint
-RUN mkdir -p /usr/share/nginx/html/health && \
-    echo "OK" > /usr/share/nginx/html/health/index.html
+# Create nginx cache directory
+RUN mkdir -p /var/cache/nginx
 
-# Expose port
+# Copy entrypoint script
+COPY docker-entrypoint.sh /app/
+RUN chmod +x /app/docker-entrypoint.sh && \
+    sed -i 's/\r$//' /app/docker-entrypoint.sh
+
 EXPOSE 80
 
-# Start Nginx
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["/bin/sh", "/app/docker-entrypoint.sh"]

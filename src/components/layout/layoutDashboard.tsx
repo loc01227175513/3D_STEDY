@@ -25,7 +25,7 @@ const LayoutDashboard = (): React.JSX.Element => {
   const userItem = downItems[1]; // Second item is the user
 
   return (
-    <AuthGuard>
+
       <Box sx={{ display: 'flex', minHeight: '100vh' }}>
         <Drawer
           variant="permanent"
@@ -71,7 +71,7 @@ const LayoutDashboard = (): React.JSX.Element => {
           </Box>
         </Box>
       </Box>
-    </AuthGuard>
+
   );
 };
 
