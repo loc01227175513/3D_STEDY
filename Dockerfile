@@ -17,7 +17,7 @@ FROM nginx:alpine
 WORKDIR /app
 
 # Copy Vite build output
-COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/build ./dist
 COPY --from=builder /app/public ./public
 
 # Copy nginx configuration
