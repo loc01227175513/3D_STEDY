@@ -42,7 +42,7 @@ export default function SignInPage(): React.JSX.Element {
         saveRefreshToken(refreshToken);
 
         // Use window.location.replace instead of React Router navigation
-        window.location.replace(paths.dashboard);
+        window.location.href = paths.dashboard;
         return true;
       } else {
         setError('Invalid email or password');

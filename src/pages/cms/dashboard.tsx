@@ -209,7 +209,7 @@ const Dashboard = (): React.JSX.Element => {
   };
 
   return (
-    <AuthGuard>
+    
       <Box sx={dashboardContainerStyle}>
         <DataGrid<LeadRow>
           columns={columns}
@@ -220,8 +220,7 @@ const Dashboard = (): React.JSX.Element => {
         defaultRowsPerPage={7}
       />
     </Box>
-    <Outlet />
-    </AuthGuard>
+   
   );
 };
 
