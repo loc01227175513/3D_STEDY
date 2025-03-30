@@ -1,11 +1,10 @@
-import React from 'react';
 import { useAuthStore } from '@/apollo/stores/useAuthStore';
 import { LoginFormValues } from '@/common/interface';
-import { paths } from '@/paths.config';
 import { saveAccessToken, saveRefreshToken } from '@/utils/storage';
 import { Email, Lock, Visibility, VisibilityOff } from '@mui/icons-material';
 import { Box, Checkbox, FormControlLabel, IconButton, InputAdornment, Typography } from '@mui/material';
 import { Field, Form, Formik } from 'formik';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import * as Yup from 'yup';
 
@@ -42,7 +41,7 @@ export default function SignInPage(): React.JSX.Element {
         saveRefreshToken(refreshToken);
 
         // Use window.location.replace instead of React Router navigation
-        window.location.href = '/dashboard';
+        window.location.href = '/auth';
         return true;
       } else {
         setError('Invalid email or password');
