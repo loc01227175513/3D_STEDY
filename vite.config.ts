@@ -16,7 +16,10 @@ export default defineConfig(({ mode }) => {
     },
     plugins: [react()],
     define: {
-      'process.env': env,
+      'process.env': {
+        ...env,
+        NODE_ENV: mode
+      },
     },
   };
 });
