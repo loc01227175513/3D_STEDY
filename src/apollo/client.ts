@@ -5,11 +5,19 @@ import {
 } from '@/graphql/mutations/refreshToken.generated';
 import { paths } from '@/paths.config';
 import { getAccessToken, getRefreshToken, removeAllToken, saveAccessToken, saveRefreshToken } from '@/utils/storage';
-import { ApolloClient, from, fromPromise, HttpLink, InMemoryCache, split, type Observable } from '@apollo/client';
+import { 
+  ApolloClient, 
+  from, 
+  fromPromise, 
+  HttpLink, 
+  InMemoryCache, 
+  split, 
+  type Observable
+} from '@apollo/client';
 import { setContext } from '@apollo/client/link/context';
 import { onError } from '@apollo/client/link/error';
 import { GraphQLWsLink } from '@apollo/client/link/subscriptions';
-import { getMainDefinition } from 'apollo-utilities';
+import { getMainDefinition } from '@apollo/client/utilities';
 import { createClient } from 'graphql-ws';
 
 // Lấy URL từ biến môi trường

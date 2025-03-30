@@ -3,9 +3,7 @@ import { DRAWER_WIDTH, MainContent, MainContentShift } from '@/pages/public/styl
 import { paths } from '@/paths.config';
 import useDrawerTemplateOpen from '@/store/drawerTemplateOpen';
 import useToolbarStore from '@/store/Toolbar';
-import ViewInArIcon from '@mui/icons-material/ViewInAr';
-import ViewModuleIcon from '@mui/icons-material/ViewModule';
-import VrPanoIcon from '@mui/icons-material/VrPano';
+import { ViewInAr as ViewInArIcon, ViewModule as ViewModuleIcon, Vrpano as VrPanoIcon } from '@mui/icons-material';
 import { Box, Button, ButtonGroup, Drawer, Stack, Typography } from '@mui/material';
 import { Outlet, useNavigate } from 'react-router-dom';
 
