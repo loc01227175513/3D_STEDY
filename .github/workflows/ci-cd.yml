@@ -12,6 +12,7 @@ env:
   SERVER_HOST: 64.23.206.54
   SERVER_USERNAME: root
   SERVER_PASSWORD: ${{ secrets.PASSWORD }}
+  API_HOST: 137.184.13.30:3000
 
 jobs:
   build-and-test:
@@ -31,7 +32,7 @@ jobs:
 
       - name: Update API configuration
         run: |
-          sed -i 's|VITE_PUBLIC_API_DOMAIN="http://137.184.13.30:3000"|VITE_PUBLIC_API_DOMAIN="http://64.23.206.54:3000"|g' .env.production
+          sed -i 's|VITE_PUBLIC_API_DOMAIN="http://64.23.206.54:3000"|VITE_PUBLIC_API_DOMAIN="http://${{ env.API_HOST }}"|g' .env.production
 
       - name: Build application
         run: npm run build
@@ -65,7 +66,7 @@ jobs:
           cache-to: type=gha,mode=max
           build-args: |
             NODE_ENV=production
-            VITE_PUBLIC_API_DOMAIN=http://64.23.206.54:3000
+            VITE_PUBLIC_API_DOMAIN=http://${{ env.API_HOST }}
             VITE_PUBLIC_API_URL=/graphql
 
       - name: Deploy to server
@@ -98,12 +99,8 @@ jobs:
                 ports:
                   - "3000:80"
                 restart: always
-                environment:
-                  - NODE_ENV=production
-                  - VITE_PUBLIC_API_DOMAIN=http://64.23.206.54:3000
-                  - VITE_PUBLIC_API_URL=/graphql
                 healthcheck:
-                  test: ["CMD", "curl", "-f", "http://localhost:80/health"]
+                  test: ["CMD", "curl", "-f", "http://localhost/health"]
                   interval: 30s
                   timeout: 10s
                   retries: 3
