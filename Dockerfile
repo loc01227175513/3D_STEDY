@@ -9,8 +9,9 @@ FROM node:18-alpine AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-# Update API endpoint in .env.production
-RUN sed -i 's|VITE_PUBLIC_API_DOMAIN="http://64.23.206.54:3000"|VITE_PUBLIC_API_DOMAIN="http://137.184.13.30:3000"|g' .env.production
+# Đảm bảo API endpoint đúng trong .env.production
+RUN echo "Updating API endpoint configuration..."
+RUN cat .env.production
 RUN npm run build
 
 # Stage 3: Runner

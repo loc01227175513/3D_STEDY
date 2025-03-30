@@ -30,9 +30,20 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Update API configuration
+      - name: Check and update API configuration
         run: |
-          sed -i 's|VITE_PUBLIC_API_DOMAIN="http://64.23.206.54:3000"|VITE_PUBLIC_API_DOMAIN="http://${{ env.API_HOST }}"|g' .env.production
+          echo "Current API configuration:"
+          cat .env.production
+          echo "Creating new .env.production with correct API endpoint"
+          cp .env.production .env.production.bak
+          echo "NODE_ENV=production" > .env.production
+          echo "VITE_NAME_ENV=production" >> .env.production
+          echo "VITE_PUBLIC_API_URL=\"/graphql\"" >> .env.production
+          echo "VITE_PUBLIC_API_DOMAIN=\"http://${{ env.API_HOST }}\"" >> .env.production
+          echo "" >> .env.production
+          tail -n +5 .env.production.bak >> .env.production
+          echo "Updated API configuration:"
+          cat .env.production
 
       - name: Build application
         run: npm run build
