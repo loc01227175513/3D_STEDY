@@ -31,6 +31,6 @@ COPY docker-entrypoint.sh /app/
 RUN chmod +x /app/docker-entrypoint.sh && \
     sed -i 's/\r$//' /app/docker-entrypoint.sh
 
-EXPOSE 80
+EXPOSE 3000
 
 CMD ["/bin/sh", "/app/docker-entrypoint.sh"]
