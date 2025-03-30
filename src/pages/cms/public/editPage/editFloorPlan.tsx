@@ -1,6 +1,5 @@
 import React, { ChangeEvent, useState } from 'react';
 import { Box, FormControl, MenuItem, Paper, Select, Typography } from '@mui/material';
-import Grid2 from '@mui/material/Grid2';
 import { styled } from '@mui/material/styles';
 
 import ButtonEdit from '@/components/dashBoard/buttonEdit/buttonEdit';
@@ -24,9 +23,9 @@ const EditFloorPlanPage = (): React.JSX.Element => {
 
   return (
     <Box sx={{ maxWidth: 1400, margin: '0 auto', padding: 3 }}>
-      <Grid2 container spacing={3}>
+      <Box sx={{ display: 'flex', flexWrap: 'wrap', mx: -1.5 }}>
         {/* Left Column - Information Section */}
-        <Grid2 size={6}>
+        <Box sx={{ width: '100%', px: 1.5, flex: { xs: '0 0 100%', md: '0 0 50%' } }}>
           <StyledPaper elevation={0}>
             <Box>
               <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold' }}>
@@ -96,10 +95,10 @@ const EditFloorPlanPage = (): React.JSX.Element => {
               />
             </Box>
           </StyledPaper>
-        </Grid2>
+        </Box>
 
         {/* Right Column - Product Model Section */}
-        <Grid2 size={6}>
+        <Box sx={{ width: '100%', px: 1.5, flex: { xs: '0 0 100%', md: '0 0 50%' } }}>
           <StyledPaper elevation={0}>
             <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
               <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold' }}>
@@ -178,8 +177,8 @@ const EditFloorPlanPage = (): React.JSX.Element => {
               />
             </Box>
           </StyledPaper>
-        </Grid2>
-      </Grid2>
+        </Box>
+      </Box>
     </Box>
   );
 };

@@ -27,17 +27,14 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: |
-          rm -rf node_modules package-lock.json
-          npm install --legacy-peer-deps
-          npm ci --legacy-peer-deps
+        run: npm ci --legacy-peer-deps
 
       - name: Update API configuration
         run: |
           sed -i 's|VITE_PUBLIC_API_DOMAIN="http://137.184.13.30:3000"|VITE_PUBLIC_API_DOMAIN="http://64.23.206.54:3000"|g' .env.production
 
       - name: Build application
-        run: npm run build:prod
+        run: npm run build
 
   deploy:
     needs: build-and-test
