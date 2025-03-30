@@ -1,6 +1,6 @@
-import React from 'react';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { Box, IconButton, Typography } from '@mui/material';
+import React from 'react';
 
 import { SourceChip, SourceType, StatusChip, StatusType } from '@/components/dashBoard/chip/chip';
 import DataGrid, { Column } from '@/components/dashBoard/dataGrid/dataGrid';
@@ -12,8 +12,6 @@ import {
   fullNameContainerStyle,
   fullNameStyle,
 } from './style/index';
-import { AuthGuard } from '@/components/auth/authGuard';
-import { Outlet } from 'react-router';
 
 interface LeadRow extends Record<string, unknown> {
   id: number;
