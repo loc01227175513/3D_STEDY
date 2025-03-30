@@ -1,5 +1,20 @@
 query me {
   me {
-    ...UserFragment
+    accessToken
+    createdAt
+    email
+    fullName
+    id
+    password
+    refreshToken
+    roles {
+      capabilities
+      createdAt
+      id
+      roleName
+      updatedAt
+    }
+    updatedAt
+    username
   }
 }

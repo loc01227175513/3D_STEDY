@@ -1,37 +1,26 @@
-import { gql } from '@apollo/client';
-import * as Apollo from '@apollo/client';
+import { gql } from '@urql/core';
+import * as Urql from 'urql';
 
-import * as Types from '../type.interface';
+import type * as Types from '../type.interface';
 
 export type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
 export type LoginMutationVariables = Types.Exact<{
   input: Types.LoginInput;
 }>;
 
-export type LoginMutation = {
-  __typename?: 'Mutation';
-  login: {
-    __typename?: 'LoginResponse';
-    accessToken: string;
-    refreshToken: string;
-    user: {
-      __typename?: 'User';
-      id: number;
-      email: string;
-      fullName: string;
-      username: string;
-      createdAt: Date;
-      updatedAt: Date;
-      roles?: Array<{
-        __typename?: 'Role';
-        id: number;
-        roleName: string;
-        capabilities: Array<string>;
-        createdAt: Date;
-        updatedAt: Date;
-      }> | null;
+export type LoginMutationResponse = { __typename?: 'Mutation' } & {
+  login: { __typename?: 'LoginResponse' } & Pick<Types.LoginResponse, 'accessToken' | 'refreshToken'> & {
+      user: { __typename?: 'User' } & Pick<
+        Types.User,
+        'id' | 'email' | 'fullName' | 'username' | 'createdAt' | 'updatedAt'
+      > & {
+          roles?: Types.Maybe<
+            Array<
+              { __typename?: 'Role' } & Pick<Types.Role, 'id' | 'roleName' | 'capabilities' | 'createdAt' | 'updatedAt'>
+            >
+          >;
+        };
     };
-  };
 };
 
 export const LoginDocument = gql`
@@ -59,5 +48,5 @@ export const LoginDocument = gql`
 `;
 
 export function useLoginMutation() {
-  return Apollo.useMutation<LoginMutation, LoginMutationVariables>(LoginDocument);
+  return Urql.useMutation<LoginMutationResponse, LoginMutationVariables>(LoginDocument);
 }

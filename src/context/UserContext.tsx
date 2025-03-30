@@ -1,8 +1,20 @@
 import React from 'react';
 import requestNotificationPermission from '@/firebase/firebaseCreatePermission';
 import { type UserFragmentFragment } from '@/graphql/fragments/user.generated';
-import { useMeLazyQuery } from '@/graphql/queries/me.generated';
+import { MeDocument, MeQueryResponse, MeQueryVariables } from '@/graphql/queries/me.generated';
 import { getAccessToken, removeAllToken } from '@/utils/storage';
+import { useClient } from 'urql';
+
+// Create a lazy version of the ME query
+export const useMeLazyQuery = () => {
+  const client = useClient();
+
+  const executeQuery = async () => {
+    return await client.query<MeQueryResponse, MeQueryVariables>(MeDocument, {}).toPromise();
+  };
+
+  return [executeQuery];
+};
 
 export interface UserContextValue {
   user: UserFragmentFragment | null;

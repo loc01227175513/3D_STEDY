@@ -1,10 +1,8 @@
-import React, { useState } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import FilterListIcon from '@mui/icons-material/FilterList';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import SearchIcon from '@mui/icons-material/Search';
-import { Box, Button, Checkbox, IconButton, InputAdornment, Tab, Tabs, TextField, Typography } from '@mui/material';
+import { Box, Checkbox, CircularProgress, IconButton, InputAdornment, TextField } from '@mui/material';
 import {
   GridColDef,
   gridPageCountSelector,
@@ -15,8 +13,14 @@ import {
   useGridSelector,
 } from '@mui/x-data-grid';
 
+import { useDebouncedSearch } from '../../../utils/debounce';
+import { CustomPagination } from '../CustomPagination';
 import { LoadButtonWithIcon } from '../loadButtonWithIcon/loadButtonWithIcon';
 import { ActionModal } from '../modal/modal';
+import { FilterParams, ShowFilter } from '../showFilter';
+import { ShowSort } from '../showSort';
+import SkeletonLoader from '../skeleton';
+import { Status, StatusTabOption } from '../status';
 import { dataGridStyles } from './index';
 
 // Types for props
@@ -34,6 +38,7 @@ export interface Column<T> {
 export interface DataGridProps<T> {
   columns: Column<T>[];
   rows: T[];
+  totalRows?: number; // Total rows for server-side pagination
   rowsPerPageOptions?: number[];
   defaultRowsPerPage?: number;
   showTabs?: boolean;
@@ -41,15 +46,25 @@ export interface DataGridProps<T> {
   showSearch?: boolean;
   showFilter?: boolean;
   showSort?: boolean;
-  onFilterChange?: (filters: Record<string, unknown>) => void;
+  loading?: boolean;
+  filterParams?: FilterParams;
+  onFilterChange?: (filters: FilterParams) => void;
   onSortChange?: (sortBy: string, direction: 'asc' | 'desc') => void;
   onRowClick?: (row: T) => void;
   getRowId: (row: T) => string | number;
   customRowAction?: (row: T) => React.ReactNode;
+  statusOptions?: { value: string; label: string }[];
+  statusTabOptions?: StatusTabOption[];
+  pageSizeOptions?: { value: string; label: string }[];
 }
 
-// Custom pagination component
-function CustomPagination() {
+// Create a context for the DataGrid props
+const DataGridContext = createContext<{
+  pageSizeOptions?: { value: string; label: string }[];
+}>({});
+
+// Custom pagination component using our extracted component
+function CustomPaginationWrapper() {
   const apiRef = useGridApiContext();
   const page = useGridSelector(apiRef, gridPageSelector);
   const pageCount = useGridSelector(apiRef, gridPageCountSelector);
@@ -57,73 +72,35 @@ function CustomPagination() {
   const pageSize = state.pagination.paginationModel.pageSize;
   const rowCount = state.rows.totalRowCount;
 
-  const from = page * pageSize + 1;
-  const to = Math.min((page + 1) * pageSize, rowCount);
+  // Get custom options from context
+  const { pageSizeOptions } = useContext(DataGridContext);
 
-  // Generate page numbers
-  const renderPageNumbers = () => {
-    const pageNumbers = [];
+  // Handle page change
+  const handlePageChange = (newPage: number) => {
+    apiRef.current.setPage(newPage);
+  };
 
-    // Simple approach to match screenshot exactly showing "1 2 3 4 5 ... 9"
-    const totalPages = Math.min(pageCount, 9); // Limit to 9 pages in screenshot
+  // Handle page size change
+  const handlePageSizeChange = (newPageSize: number) => {
+    // First update the DataGrid's internal state
+    apiRef.current.setPageSize(newPageSize);
 
-    for (let i = 0; i < totalPages; i++) {
-      // Show numbers 1-5, then ellipsis, then 9 (if more than 5 pages)
-      if (i < 5 || i === totalPages - 1) {
-        pageNumbers.push(
-          <Button
-            key={i}
-            size="small"
-            variant={page === i ? 'contained' : 'text'}
-            onClick={() => apiRef.current.setPage(i)}
-            sx={dataGridStyles.pageButton(page === i)}
-          >
-            {i + 1}
-          </Button>
-        );
-      } else if (i === 5) {
-        // Add ellipsis after 5
-        pageNumbers.push(
-          <Typography key="ellipsis" variant="body2" sx={{ mx: 0.5 }}>
-            ...
-          </Typography>
-        );
-      }
-    }
-
-    return pageNumbers;
+    // Then trigger the model change event which will update parent filters
+    const paginationModel = { ...state.pagination.paginationModel, pageSize: newPageSize };
+    apiRef.current.setPaginationModel(paginationModel);
   };
 
   return (
-    <Box sx={dataGridStyles.paginationContainer}>
-      {/* Left side - Result count */}
-      <Typography variant="body2" color="text.secondary">
-        Viewing {from}-{to} of {rowCount} results
-      </Typography>
-
-      {/* Middle - Page numbers */}
-      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{renderPageNumbers()}</Box>
-
-      {/* Right side - Previous/Next buttons */}
-      <Box>
-        <Button
-          size="small"
-          disabled={page === 0}
-          onClick={() => apiRef.current.setPage(page - 1)}
-          sx={dataGridStyles.paginationNavButton}
-        >
-          Previous
-        </Button>
-        <Button
-          size="small"
-          disabled={page >= pageCount - 1}
-          onClick={() => apiRef.current.setPage(page + 1)}
-          sx={dataGridStyles.paginationNavButton}
-        >
-          Next
-        </Button>
-      </Box>
-    </Box>
+    <CustomPagination
+      page={page}
+      pageSize={pageSize}
+      rowCount={rowCount}
+      pageCount={pageCount}
+      onPageChange={handlePageChange}
+      onPageSizeChange={handlePageSizeChange}
+      pageSizeOptions={pageSizeOptions}
+      paginationStyles={dataGridStyles}
+    />
   );
 }
 
@@ -131,15 +108,23 @@ export const DataGrid = <T extends Record<string, unknown>>(props: DataGridProps
   const {
     columns,
     rows,
+    totalRows,
     rowsPerPageOptions = [7, 10, 25, 50],
     defaultRowsPerPage = 7,
     showCheckboxes = true,
-    showSearch = true,
     showFilter = true,
     showSort = true,
+    showTabs = true,
+    loading = false,
+    filterParams = {},
+    onFilterChange,
+    onSortChange,
     onRowClick,
     getRowId,
     customRowAction,
+    statusOptions,
+    statusTabOptions,
+    pageSizeOptions,
   } = props;
 
   const [selectionModel, setSelectionModel] = useState<GridRowSelectionModel>([]);
@@ -148,8 +133,71 @@ export const DataGrid = <T extends Record<string, unknown>>(props: DataGridProps
   const [selectedRow, setSelectedRow] = useState<T | null>(null);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
-  const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
+  // Search, filter, and sort states
+  const [searchValue, setSearchValue] = useState(filterParams.keyword || '');
+  const [sortField, setSortField] = useState<string>('');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
+  const [filterValues, setFilterValues] = useState<FilterParams>({
+    status: filterParams.status || '',
+    limit: filterParams.limit || defaultRowsPerPage,
+    page: filterParams.page || 0,
+    keyword: filterParams.keyword || '',
+  });
+
+  // Status filter options - use provided options or default
+  const STATUS_OPTIONS = statusOptions || [
+    { value: '', label: 'All' },
+    { value: 'New', label: 'New' },
+    { value: 'Contacted', label: 'Contacted' },
+    { value: 'In Progress', label: 'In Progress' },
+    { value: 'Qualified', label: 'Qualified' },
+    { value: 'Unqualified', label: 'Unqualified' },
+    { value: 'Closed', label: 'Closed' },
+  ];
+
+  // Apply search debounce using utility function
+  const debouncedSearch = useDebouncedSearch(onFilterChange, filterValues);
+
+  // Handle search input change
+  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const value = event.target.value;
+    setSearchValue(value);
+    debouncedSearch(value);
+  };
+
+  // Handle filter change
+  const handleFilterChange = (newFilters: FilterParams) => {
+    setFilterValues(newFilters);
+    if (onFilterChange) {
+      onFilterChange(newFilters);
+    }
+  };
+
+  // Handle sort change
+  const handleSortChange = (field: string, direction: 'asc' | 'desc') => {
+    setSortField(field);
+    setSortDirection(direction);
+
+    if (onSortChange) {
+      onSortChange(field, direction);
+    }
+  };
+
+  // Handle tab change
+  const handleTabChange = (newValue: number, statusValue?: string) => {
     setTabValue(newValue);
+
+    setFilterValues({
+      ...filterValues,
+      status: statusValue || '',
+    });
+
+    if (onFilterChange) {
+      onFilterChange({
+        ...filterValues,
+        status: statusValue || '',
+      });
+    }
   };
 
   // Convert our columns to MUI X DataGrid columns
@@ -157,11 +205,12 @@ export const DataGrid = <T extends Record<string, unknown>>(props: DataGridProps
     field: column.id,
     headerName: column.label,
     width: column.minWidth || 150,
+    minWidth: column.minWidth || 150, // Ensure minimum width
+    flex: column.id === 'fullName' ? 1.5 : column.id === 'community' || column.id === 'floorplan' ? 1.2 : 1, // Add flex to all columns
     sortable: column.sortable !== false,
     filterable: column.filterable !== false,
     align: column.align || 'left',
     headerAlign: column.align || 'left',
-    flex: column.flex !== undefined ? column.flex : column.minWidth ? 0 : 1,
     renderCell: column.format ? (params) => column.format!(params.value, params.row as T) : undefined,
     headerClassName: 'bold-header',
   }));
@@ -247,17 +296,22 @@ export const DataGrid = <T extends Record<string, unknown>>(props: DataGridProps
           <Box component="img" src="/dashboard/delete.svg" sx={{ width: '18px', height: '18px' }} />
         </IconButton>
 
-        <Tabs value={tabValue} onChange={handleTabChange} sx={dataGridStyles.tabsContainer}>
-          <Tab label="All" sx={dataGridStyles.tab(tabValue === 0)} />
-          <Tab label="Active" sx={dataGridStyles.tabWithPadding(tabValue === 1)} />
-          <Tab label="Archive" sx={dataGridStyles.tabWithPadding(tabValue === 2)} />
-        </Tabs>
+        {showTabs && (
+          <Status
+            tabValue={tabValue}
+            onTabChange={handleTabChange}
+            tabOptions={statusTabOptions}
+            tabStyles={dataGridStyles}
+          />
+        )}
 
         <Box sx={dataGridStyles.flexGrow} />
 
         <TextField
           placeholder="Search"
           size="small"
+          value={searchValue}
+          onChange={handleSearchChange}
           sx={dataGridStyles.searchField}
           InputProps={{
             endAdornment: (
@@ -269,57 +323,110 @@ export const DataGrid = <T extends Record<string, unknown>>(props: DataGridProps
         />
 
         {showFilter && (
-          <Button startIcon={<FilterListIcon />} variant="text" size="small" sx={dataGridStyles.filterButton}>
-            Filter
-          </Button>
+          <ShowFilter
+            filterValues={filterValues}
+            onFilterChange={handleFilterChange}
+            statusOptions={STATUS_OPTIONS}
+            filterButtonStyles={dataGridStyles.filterButton}
+          />
         )}
 
         {showSort && (
-          <Button endIcon={<ExpandMoreIcon />} variant="text" size="small" sx={dataGridStyles.sortButton}>
-            Sort by
-          </Button>
+          <ShowSort
+            columns={columns}
+            sortField={sortField}
+            sortDirection={sortDirection}
+            onSortChange={handleSortChange}
+            sortButtonStyles={dataGridStyles.sortButton}
+          />
         )}
       </Box>
 
       <Box sx={dataGridStyles.gridContainer}>
-        <MuiDataGrid
-          rows={rows}
-          columns={gridColumns}
-          getRowId={(row) => getRowId(row as T)}
-          autoHeight={false}
-          disableRowSelectionOnClick
-          disableColumnResize
-          getRowHeight={() => 'auto'}
-          getEstimatedRowHeight={() => 100}
-          checkboxSelection={showCheckboxes}
-          onRowSelectionModelChange={(newSelectionModel) => {
-            setSelectionModel(newSelectionModel);
-          }}
-          rowSelectionModel={selectionModel}
-          onRowClick={(params) => {
-            if (onRowClick) {
-              onRowClick(params.row as T);
-            }
-          }}
-          initialState={{
-            pagination: {
-              paginationModel: {
-                pageSize: defaultRowsPerPage,
-              },
-            },
-          }}
-          pageSizeOptions={rowsPerPageOptions}
-          slots={{
-            toolbar: undefined,
-            pagination: CustomPagination,
-          }}
-          slotProps={{
-            toolbar: {
-              showQuickFilter: showSearch,
-            },
-          }}
-          sx={dataGridStyles.dataGrid}
-        />
+        {loading ? (
+          <SkeletonLoader variant="table" count={defaultRowsPerPage} animation="pulse" />
+        ) : (
+          <DataGridContext.Provider value={{ pageSizeOptions }}>
+            <MuiDataGrid
+              sx={{
+                ...dataGridStyles.dataGrid,
+                width: '100%',
+                height: 'calc(100vh - 250px)', // Set explicit height
+                '& .MuiDataGrid-columnHeaders': {
+                  whiteSpace: 'nowrap',
+                  width: '100%',
+                  maxWidth: '100%',
+                },
+                '& .MuiDataGrid-row': {
+                  width: '100%',
+                  maxWidth: '100%',
+                },
+                '& .MuiDataGrid-footerContainer': {
+                  position: 'sticky',
+                  bottom: 0,
+                  width: '100%',
+                  backgroundColor: 'white',
+                  zIndex: 5,
+                },
+                '& .MuiDataGrid-virtualScroller': {
+                  // Ensure scrollbar is visible
+                  overflowY: 'auto !important',
+                  overflowX: 'auto !important',
+                },
+              }}
+              autoHeight={false} // Set to false to enable scrolling
+              hideFooterSelectedRowCount
+              rowHeight={52}
+              rows={rows}
+              rowCount={totalRows || rows.length}
+              paginationMode="server"
+              pageSizeOptions={rowsPerPageOptions}
+              columns={gridColumns}
+              initialState={{
+                pagination: {
+                  paginationModel: { page: filterValues.page || 0, pageSize: filterValues.limit || defaultRowsPerPage },
+                },
+              }}
+              onPaginationModelChange={(model) => {
+                // Update both page and limit in filter values
+                setFilterValues({
+                  ...filterValues,
+                  limit: model.pageSize,
+                  page: model.page,
+                });
+
+                if (onFilterChange) {
+                  onFilterChange({
+                    ...filterValues,
+                    limit: model.pageSize,
+                    page: model.page,
+                  });
+                }
+              }}
+              onRowClick={(params) => {
+                if (onRowClick) {
+                  onRowClick(params.row as T);
+                }
+              }}
+              checkboxSelection={showCheckboxes}
+              onRowSelectionModelChange={(newSelectionModel) => {
+                setSelectionModel(newSelectionModel);
+              }}
+              rowSelectionModel={selectionModel}
+              loading={loading}
+              disableRowSelectionOnClick
+              slots={{
+                pagination: CustomPaginationWrapper,
+                loadingOverlay: () => (
+                  <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+                    <CircularProgress />
+                  </Box>
+                ),
+              }}
+              getRowId={getRowId}
+            />
+          </DataGridContext.Provider>
+        )}
       </Box>
 
       <ActionModal

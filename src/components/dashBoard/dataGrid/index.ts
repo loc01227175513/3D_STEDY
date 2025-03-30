@@ -5,6 +5,14 @@ export const dataGridStyles = {
   container: {
     width: '100%',
     mb: 2,
+    display: 'flex',
+    flexDirection: 'column',
+    height: 'calc(100vh - 130px)', // Fixed height based on viewport
+    borderRadius: '8px',
+    overflow: 'hidden', // Keep container overflow hidden to maintain fixed height
+    boxShadow: '0px 2px 10px rgba(0, 0, 0, 0.05)',
+    boxSizing: 'border-box',
+    maxWidth: '100%',
   },
 
   // Toolbar styles
@@ -13,6 +21,7 @@ export const dataGridStyles = {
     alignItems: 'center',
     mb: 1,
     p: 1,
+    borderBottom: '1px solid rgba(0, 0, 0, 0.05)',
   },
   checkboxContainer: {
     display: 'flex',
@@ -94,8 +103,13 @@ export const dataGridStyles = {
 
   // DataGrid styles
   gridContainer: {
-    height: 'calc(100vh - 200px)',
-    width: '100%',
+    flexGrow: 1,
+    display: 'flex',
+    flexDirection: 'column',
+    overflow: 'hidden', // Keep container hidden to maintain fixed height
+    width: '100%', // Constrain width to 100% of parent
+    maxWidth: '100%', // Ensure it doesn't grow beyond parent width
+    boxSizing: 'border-box',
     '& .bold-header': {
       fontWeight: 800,
     },
@@ -103,11 +117,55 @@ export const dataGridStyles = {
   dataGrid: {
     height: '100%',
     border: 'none',
+    flexGrow: 1,
+    display: 'flex',
+    flexDirection: 'column',
+    width: '100%', // Constrain width
+    maxWidth: '100%', // Prevent expansion
+    boxSizing: 'border-box',
+    tableLayout: 'fixed',
+    '& .MuiDataGrid-main': {
+      flexGrow: 1,
+      overflow: 'hidden', // Keep main container hidden
+      width: '100%', // Constrain width
+      maxWidth: '100%',
+      boxSizing: 'border-box',
+    },
+    '& .MuiDataGrid-virtualScroller': {
+      // Only allow scrolling on the virtual scroller
+      overflowY: 'auto !important', // Force scrollbar visible
+      overflowX: 'auto !important', // Force scrollbar visible
+      width: '100%',
+      maxWidth: '100%',
+      // Firefox scrollbar styling
+      scrollbarWidth: 'thin',
+      scrollbarColor: '#c1c1c1 #f1f1f1',
+      // Add custom scrollbar styling for better visibility
+      '&::-webkit-scrollbar': {
+        width: '10px',
+        height: '10px',
+      },
+      '&::-webkit-scrollbar-track': {
+        backgroundColor: '#f1f1f1',
+        borderRadius: '4px',
+      },
+      '&::-webkit-scrollbar-thumb': {
+        backgroundColor: '#c1c1c1',
+        borderRadius: '4px',
+        border: '1px solid #f1f1f1',
+        '&:hover': {
+          backgroundColor: '#a8a8a8',
+        },
+      },
+    },
     '& .MuiDataGrid-columnHeaders': {
       backgroundColor: '#F6F8FA',
       borderRadius: '10px',
       '& .MuiDataGrid-columnHeader': {
         backgroundColor: '#F6F8FA',
+        overflow: 'hidden', // Prevent expansion
+        whiteSpace: 'nowrap', // Prevent text wrapping
+        textOverflow: 'ellipsis', // Show ellipsis for overflow
       },
       '& .MuiDataGrid-columnHeaderTitle': {
         fontWeight: 'bold',
@@ -115,26 +173,36 @@ export const dataGridStyles = {
         color: '#000000',
         textTransform: 'capitalize',
         letterSpacing: '0.5px',
+        overflow: 'hidden', // Prevent expansion
+        textOverflow: 'ellipsis', // Show ellipsis for overflow
       },
     },
     '& .MuiDataGrid-row': {
+      width: '100%', // Constrain row width
       '& .MuiDataGrid-cell': {
         borderBottom: 'none',
+        maxWidth: 'inherit', // Respect parent width constraints
       },
     },
     '& .MuiDataGrid-cell': {
       display: 'flex',
       alignItems: 'center',
       whiteSpace: 'normal',
-      overflow: 'visible',
+      overflow: 'hidden', // Changed from visible to hidden
+      textOverflow: 'ellipsis', // Add ellipsis for text overflow
       lineHeight: 'normal',
       wordWrap: 'break-word',
       padding: '8px 16px',
       borderRight: 'none',
+      maxWidth: '100%', // Constrain cell width
     },
     '& .MuiDataGrid-footerContainer': {
       justifyContent: 'center',
-      borderTop: 'none',
+      borderTop: '1px solid rgba(0, 0, 0, 0.05)',
+      position: 'sticky',
+      bottom: 0,
+      backgroundColor: 'white',
+      zIndex: 2, // Increase z-index to ensure it stays on top
     },
   },
 
@@ -145,6 +213,11 @@ export const dataGridStyles = {
     alignItems: 'center',
     justifyContent: 'space-between',
     p: 1,
+    backgroundColor: 'white',
+    position: 'sticky', // Make pagination sticky at bottom
+    bottom: 0,
+    zIndex: 3, // Higher z-index than the footer container
+    minHeight: '56px', // Ensure minimum height for pagination
   },
   pageButton: (isSelected: boolean): SxProps<Theme> => ({
     minWidth: '32px',

@@ -1,20 +1,18 @@
+import React, { useCallback, useState } from 'react';
+import { useLeadsQuery } from '@/graphql/queries/leads.generated';
+import { buildGraphQLVariables } from '@/utils/graphql';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
-import { Box, IconButton, Typography } from '@mui/material';
-import React from 'react';
+import { Box, IconButton, Tooltip, Typography } from '@mui/material';
 
 import { SourceChip, SourceType, StatusChip, StatusType } from '@/components/dashBoard/chip/chip';
 import DataGrid, { Column } from '@/components/dashBoard/dataGrid/dataGrid';
+import { FilterParams } from '@/components/dashBoard/showFilter';
 
-import {
-  communityFloorplanStyle,
-  dashboardContainerStyle,
-  emailStyle,
-  fullNameContainerStyle,
-  fullNameStyle,
-} from './style/index';
+import { dashboardContainerStyle, fullNameContainerStyle } from './style/index';
 
+// Interface definition for a lead row
 interface LeadRow extends Record<string, unknown> {
-  id: number;
+  id: string | number;
   createAt: string;
   community: string;
   floorplan: string;
@@ -28,126 +26,115 @@ interface LeadRow extends Record<string, unknown> {
 }
 
 const Dashboard = (): React.JSX.Element => {
-  // Mock data
-  const rows: LeadRow[] = [
-    {
-      id: 1,
-      createAt: '2023-01-15',
-      community: 'Halcyon Gables',
-      floorplan: 'Site 42 | Fraser 31',
-      fullName: 'John Smith',
-      email: 'john.smith@example.com',
-      phone: '+61 400 123 456',
-      state: 'VIC',
-      saleAgent: 'Not Assigned',
-      status: 'New',
-      leadSource: 'Website',
-    },
-    {
-      id: 2,
-      createAt: '2023-02-10',
-      community: 'Halcyon Vista',
-      floorplan: 'Site 45 | Aria 70',
-      fullName: 'Emily Johnson',
-      email: 'emily.johnson@example.com',
-      phone: '+61 412 757 654',
-      state: 'QLD',
-      saleAgent: 'Emily Johnson',
-      status: 'Contacted',
-      leadSource: 'Sale',
-    },
-    {
-      id: 3,
-      createAt: '2023-03-25',
-      community: 'Halcyon Evergreen',
-      floorplan: 'Site 36 | Napier',
-      fullName: 'Michael Brown',
-      email: 'michael.brown@example.com',
-      phone: '+61 423 456 757',
-      state: 'VIC',
-      saleAgent: 'Michael Brown',
-      status: 'Informed',
-      leadSource: 'Referral',
-    },
-    {
-      id: 4,
-      createAt: '2023-04-20',
-      community: 'Halcyon Promenade',
-      floorplan: 'Site 242 Avoca G7',
-      fullName: 'Sarah Davis',
-      email: 'sarah.davis@example.com',
-      phone: '+61 434 757 012',
-      state: 'WA',
-      saleAgent: 'Sarah Davis',
-      status: 'Follow-up',
-      leadSource: 'Website',
-    },
-    {
-      id: 5,
-      createAt: '2023-05-12',
-      community: 'Halcyon Gables',
-      floorplan: 'Site 14 | Daintree G4',
-      fullName: 'David Wilson',
-      email: 'david.wilson@example.com',
-      phone: '+61 445 654 321',
-      state: 'NSW',
-      saleAgent: 'David Wilson',
-      status: 'Qualified',
-      leadSource: 'Sale',
-    },
-    {
-      id: 6,
-      createAt: '2023-06-18',
-      community: 'Halcyon Coves',
-      floorplan: 'Site 85 | Avalon 35',
-      fullName: 'Jessica Martinez',
-      email: 'jessica.martinez@example.com',
-      phone: '+61 456 321 987',
-      state: 'QLD',
-      saleAgent: 'Jessica Martinez',
-      status: 'Proposal Sent',
-      leadSource: 'Referral',
-    },
-    {
-      id: 7,
-      createAt: '2023-07-14',
-      community: 'Halcyon Promenade',
-      floorplan: 'Site 238 Monterey H2',
-      fullName: 'James Anderson',
-      email: 'james.anderson@example.com',
-      phone: '+61 467 987 654',
-      state: 'VIC',
-      saleAgent: 'James Anderson',
-      status: 'Negotiation',
-      leadSource: 'Website',
-    },
-    {
-      id: 8,
-      createAt: '2023-09-14',
-      community: 'Halcyon Vista',
-      floorplan: 'Site 138 | Somo 15',
-      fullName: 'James Anderson',
-      email: 'james.anderson@example.com',
-      phone: '+61 475 234 567',
-      state: 'WA',
-      saleAgent: 'James Anderson',
-      status: 'Contracted',
-      leadSource: 'Sale',
-    },
-    {
-      id: 9,
-      createAt: '2023-07-14',
-      community: 'Halcyon Gables',
-      floorplan: 'Site 5 | Kimberley G3',
-      fullName: 'Jean David',
-      email: 'james.anderson@example.com',
-      phone: '+61 475 234 567',
-      state: 'WA',
-      saleAgent: 'Jean David',
-      status: 'Lost',
-      leadSource: 'Referral',
-    },
-  ];
+  // State for filter parameters
+  const [filterParams, setFilterParams] = useState<FilterParams>({
+    keyword: '',
+    status: '',
+    page: 0,
+    limit: 5,
+  });
+
+  // Query with filter parameters
+  const [queryResult] = useLeadsQuery(buildGraphQLVariables(filterParams, 5));
+
+  const { data, fetching } = queryResult;
+
+  // Handle filter changes from the DataGrid
+  const handleFilterChange = useCallback((newFilters: FilterParams) => {
+    setFilterParams((prev: FilterParams) => ({
+      ...prev,
+      ...newFilters,
+    }));
+  }, []);
+
+  // Handle sort changes from the DataGrid
+  const handleSortChange = useCallback((sortBy: string, direction: 'asc' | 'desc') => {
+    console.log(`Sorting by ${sortBy} in ${direction} order`);
+    // Currently the GraphQL API might not support sorting
+    // This would be implemented if the API supports it
+  }, []);
+
+  const rows: LeadRow[] = React.useMemo(() => {
+    if (!data?.leads?.items?.length) return [];
+
+    // Log the raw data to see if it contains unique items
+    console.log('Raw data from API:', data.leads.items);
+
+    // Create a Set to ensure we don't have duplicate IDs
+    const uniqueIds = new Set<string>();
+
+    const mappedRows = data.leads.items.map((lead, index) => {
+      // Destructure with defaults to avoid repetitive null checks
+      const { id, createdAt, community, product, full_name, email, phone, state, sale_agent, status, lead_source } =
+        lead;
+
+      // Generate a unique ID for each row
+      // If ID is null or undefined, use the index
+      // If ID is a UUID string, use it directly
+      const rowId = id
+        ? typeof id === 'string' && id.includes('-')
+          ? id // Use UUID as is
+          : Number(id) // Convert to number for numeric IDs
+        : `idx-${index}`; // Use index as fallback for null IDs
+
+      // Check for duplicates
+      if (uniqueIds.has(String(rowId))) {
+        console.warn(`Duplicate ID found: ${rowId}, using index-based ID as fallback`);
+        // Assign a guaranteed unique ID based on index
+        return {
+          id: `row-${index}-${Date.now()}`,
+          createAt: createdAt
+            ? new Date(createdAt).toLocaleString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+              })
+            : '',
+          community: community || '',
+          floorplan: product?.name || '',
+          fullName: full_name || '',
+          email: email || '',
+          phone: phone || '',
+          state: state || '',
+          saleAgent: sale_agent || 'Not Assigned',
+          status: (status as StatusType) || 'New',
+          leadSource: (lead_source as SourceType) || 'Website',
+        };
+      }
+
+      uniqueIds.add(String(rowId));
+
+      return {
+        id: rowId,
+        createAt: createdAt
+          ? new Date(createdAt).toLocaleString('en-US', {
+              year: 'numeric',
+              month: 'short',
+              day: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit',
+            })
+          : '',
+        community: community || '',
+        floorplan: product?.name || '',
+        fullName: full_name || '',
+        email: email || '',
+        phone: phone || '',
+        state: state || '',
+        saleAgent: sale_agent || 'Not Assigned',
+        status: (status as StatusType) || 'New',
+        leadSource: (lead_source as SourceType) || 'Website',
+      };
+    });
+
+    // Log the mapped rows to see if they're unique
+    console.log('Mapped rows with unique IDs:', mappedRows);
+    console.log('Unique IDs count:', uniqueIds.size, 'Total rows:', mappedRows.length);
+
+    return mappedRows;
+  }, [data?.leads?.items]);
 
   const getStatusChip = (status: unknown) => {
     return <StatusChip status={status as StatusType} />;
@@ -160,38 +147,90 @@ const Dashboard = (): React.JSX.Element => {
   const formatFullName = (fullName: unknown, row: LeadRow) => {
     return (
       <Box sx={fullNameContainerStyle}>
-        <Typography sx={fullNameStyle}>{fullName as string}</Typography>
-        <Typography sx={emailStyle}>{row.email}</Typography>
+        <Tooltip title={fullName as string}>
+          <Typography
+            sx={{
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+              display: 'block',
+              width: '100%',
+              fontWeight: 600,
+              fontSize: '14px',
+            }}
+          >
+            {fullName as string}
+          </Typography>
+        </Tooltip>
+        <Tooltip title={row.email as string}>
+          <Typography
+            sx={{
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+              display: 'block',
+              width: '100%',
+              color: 'text.secondary',
+              fontSize: '12px',
+            }}
+          >
+            {row.email as string}
+          </Typography>
+        </Tooltip>
       </Box>
     );
   };
 
   const formatCommunity = (community: unknown) => {
     return (
-      <Typography color="primary" sx={communityFloorplanStyle}>
-        {community as string}
-      </Typography>
+      <Tooltip title={community as string}>
+        <Typography
+          color="primary"
+          sx={{
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+            display: 'block',
+            width: '100%',
+            fontWeight: 500,
+          }}
+        >
+          {community as string}
+        </Typography>
+      </Tooltip>
     );
   };
 
   const formatFloorplan = (floorplan: unknown) => {
     return (
-      <Typography color="primary" sx={communityFloorplanStyle}>
-        {floorplan as string}
-      </Typography>
+      <Tooltip title={floorplan as string}>
+        <Typography
+          color="primary"
+          sx={{
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+            display: 'block',
+            width: '100%',
+            fontWeight: 500,
+          }}
+        >
+          {floorplan as string}
+        </Typography>
+      </Tooltip>
     );
   };
 
   const columns: Column<LeadRow>[] = [
-    { id: 'createAt', label: 'Create At', minWidth: 100, flex: 1 },
-    { id: 'community', label: 'Community', format: formatCommunity, minWidth: 180, flex: 1 },
-    { id: 'floorplan', label: 'Floorplan', format: formatFloorplan, minWidth: 150, flex: 1 },
+    { id: 'createAt', label: 'Create At', minWidth: 120, flex: 1 },
+    { id: 'community', label: 'Community', format: formatCommunity, minWidth: 150, flex: 1.2 },
+    { id: 'floorplan', label: 'Floorplan', format: formatFloorplan, minWidth: 150, flex: 1.2 },
     { id: 'fullName', label: 'Full name', format: formatFullName, minWidth: 200, flex: 1.5 },
     { id: 'phone', label: 'Phone', minWidth: 120, flex: 1 },
-    { id: 'state', label: 'State', minWidth: 100, align: 'center', flex: 0.5 },
+    { id: 'state', label: 'State', minWidth: 80, align: 'center', flex: 0.8 },
     { id: 'saleAgent', label: 'Sale Agent', minWidth: 120, flex: 1 },
-    { id: 'status', label: 'Status', format: getStatusChip, minWidth: 120, flex: 1.2 },
-    { id: 'leadSource', label: 'Lead Source', format: getSourceChip, minWidth: 100, flex: 1 },
+    { id: 'status', label: 'Status', format: getStatusChip, minWidth: 120, flex: 1 },
+    { id: 'leadSource', label: 'Lead Source', format: getSourceChip, minWidth: 120, flex: 1 },
   ];
 
   const handleRowClick = (row: LeadRow) => {
@@ -207,18 +246,22 @@ const Dashboard = (): React.JSX.Element => {
   };
 
   return (
-    
-      <Box sx={dashboardContainerStyle}>
-        <DataGrid<LeadRow>
-          columns={columns}
-          rows={rows}
-          getRowId={(row) => row.id}
-          onRowClick={handleRowClick}
+    <Box sx={dashboardContainerStyle}>
+      <DataGrid<LeadRow>
+        columns={columns}
+        rows={rows}
+        totalRows={data?.leads?.total || rows.length}
+        getRowId={(row) => row.id}
+        onRowClick={handleRowClick}
         customRowAction={rowActions}
-        defaultRowsPerPage={7}
+        defaultRowsPerPage={10}
+        rowsPerPageOptions={[1, 5, 10, 20, 50, 100]}
+        loading={fetching}
+        filterParams={filterParams}
+        onFilterChange={handleFilterChange}
+        onSortChange={handleSortChange}
       />
     </Box>
-   
   );
 };
 

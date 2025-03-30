@@ -1,18 +1,18 @@
+import React from 'react';
 import { DRAWER_DASHBOARD } from '@/pages/public/style';
 import { dashboard, dashboardDown } from '@/paths.config';
 import useDrawerTemplateOpen from '@/store/drawerTemplateOpen';
 import { ToastMessage } from '@/utils/toast';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { Box, Drawer, List, Stack } from '@mui/material';
-import React from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
 
 import BoxImage from '@/components/boxImage';
 import HeaderContent from '@/components/headerContent/headerContent';
 import CustomListItem from '@/components/listItem/listItem';
 import UserProfileItem from '@/components/listItem/userProfileItem';
-import { AuthGuard } from '../auth/authGuard';
 
+import { AuthGuard } from '../auth/authGuard';
 
 const LayoutDashboard = (): React.JSX.Element => {
   const navigate = useNavigate();
@@ -25,7 +25,7 @@ const LayoutDashboard = (): React.JSX.Element => {
   const userItem = downItems[1]; // Second item is the user
 
   return (
-      <AuthGuard>
+    <AuthGuard>
       <Box sx={{ display: 'flex', minHeight: '100vh' }}>
         <Drawer
           variant="permanent"
@@ -71,7 +71,7 @@ const LayoutDashboard = (): React.JSX.Element => {
           </Box>
         </Box>
       </Box>
-      </AuthGuard>
+    </AuthGuard>
   );
 };
 

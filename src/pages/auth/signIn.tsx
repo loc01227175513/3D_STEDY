@@ -1,10 +1,11 @@
+import React from 'react';
 import { useAuthStore } from '@/apollo/stores/useAuthStore';
 import { LoginFormValues } from '@/common/interface';
+import { paths } from '@/paths.config';
 import { saveAccessToken, saveRefreshToken } from '@/utils/storage';
 import { Email, Lock, Visibility, VisibilityOff } from '@mui/icons-material';
 import { Box, Checkbox, FormControlLabel, IconButton, InputAdornment, Typography } from '@mui/material';
 import { Field, Form, Formik } from 'formik';
-import React from 'react';
 import { Link } from 'react-router-dom';
 import * as Yup from 'yup';
 
@@ -21,7 +22,7 @@ export default function SignInPage(): React.JSX.Element {
   const { setUser } = useAuthStore();
   const [error, setError] = React.useState<string | null>(null);
 
-  const [login, { loading }] = useLoginMutation();
+  const [loginResult, login] = useLoginMutation();
 
   const handleTogglePassword = () => {
     setShowPassword(!showPassword);
@@ -29,9 +30,7 @@ export default function SignInPage(): React.JSX.Element {
 
   const handleLogin = async (variables: { input: { email: string; password: string } }) => {
     try {
-      const result = await login({
-        variables,
-      });
+      const result = await login(variables);
 
       if (result.data?.login) {
         setUser(result.data.login.user);
@@ -41,7 +40,7 @@ export default function SignInPage(): React.JSX.Element {
         saveRefreshToken(refreshToken);
 
         // Use window.location.replace instead of React Router navigation
-        window.location.href = '/auth';
+        window.location.replace(paths.dashboard);
         return true;
       } else {
         setError('Invalid email or password');
@@ -192,8 +191,8 @@ export default function SignInPage(): React.JSX.Element {
                     </Link>
                   </Box>
 
-                  <StyledButton type="submit" variant="contained" disabled={isSubmitting || loading}>
-                    {isSubmitting || loading ? 'Logging in...' : 'Login'}
+                  <StyledButton type="submit" variant="contained" disabled={isSubmitting || loginResult.fetching}>
+                    {isSubmitting || loginResult.fetching ? 'Logging in...' : 'Login'}
                   </StyledButton>
 
                   {error && (

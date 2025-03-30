@@ -25,18 +25,15 @@ interface UserProfileItemProps {
 const UserProfileItem: React.FC<UserProfileItemProps> = ({ item, ToastMessage }) => {
   const navigate = useNavigate();
   const { setUser } = useAuthStore();
-  const [logoutMutation] = useLogoutMutation();
+  const [, executeLogout] = useLogoutMutation();
 
   const onLogout = async () => {
     await handleLogout(
-      // Convert Apollo mutation to a promise-based function
+      // Convert URQL mutation to a promise-based function
       (variables) => {
-        return new Promise((resolve, reject) => {
-          logoutMutation({
-            variables,
-            onCompleted: (data) => resolve({ success: Boolean(data.logout) }),
-            onError: (error) => reject(error),
-          });
+        return executeLogout(variables).then((result) => {
+          if (result.error) throw result.error;
+          return { success: Boolean(result.data?.logout) };
         });
       },
       {

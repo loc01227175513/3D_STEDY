@@ -1,41 +1,47 @@
-import { gql } from '@apollo/client';
-import * as Apollo from '@apollo/client';
+import { gql } from '@urql/core';
+import * as Urql from 'urql';
 
-import { UserFragmentFragmentDoc } from '../fragments/user.generated';
-import * as Types from '../type.interface';
+import type * as Types from '../type.interface';
 
 export type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
 export type MeQueryVariables = Types.Exact<{ [key: string]: never }>;
 
-export type MeQuery = {
-  __typename?: 'Query';
-  me: {
-    __typename?: 'User';
-    id: number;
-    email: string;
-    fullName: string;
-    createdAt: Date;
-    updatedAt: Date;
-    username: string;
-    roles?: Array<{ __typename?: 'Role'; id: number; roleName: string; capabilities: Array<string> }> | null;
-  };
+export type MeQueryResponse = { __typename?: 'Query' } & {
+  me: { __typename?: 'User' } & Pick<
+    Types.User,
+    'accessToken' | 'createdAt' | 'email' | 'fullName' | 'id' | 'password' | 'refreshToken' | 'updatedAt' | 'username'
+  > & {
+      roles?: Types.Maybe<
+        Array<
+          { __typename?: 'Role' } & Pick<Types.Role, 'capabilities' | 'createdAt' | 'id' | 'roleName' | 'updatedAt'>
+        >
+      >;
+    };
 };
 
 export const MeDocument = gql`
   query me {
     me {
-      ...UserFragment
+      accessToken
+      createdAt
+      email
+      fullName
+      id
+      password
+      refreshToken
+      roles {
+        capabilities
+        createdAt
+        id
+        roleName
+        updatedAt
+      }
+      updatedAt
+      username
     }
   }
-  ${UserFragmentFragmentDoc}
 `;
 
-export function useMeQuery(options?: Apollo.QueryHookOptions<MeQuery, MeQueryVariables>) {
-  const defaultOptions = {} as const;
-  return Apollo.useQuery<MeQuery, MeQueryVariables>(MeDocument, { ...defaultOptions, ...options });
-}
-
-export function useMeLazyQuery(options?: Apollo.LazyQueryHookOptions<MeQuery, MeQueryVariables>) {
-  const defaultOptions = {} as const;
-  return Apollo.useLazyQuery<MeQuery, MeQueryVariables>(MeDocument, { ...defaultOptions, ...options });
+export function useMeQuery(options?: Omit<Urql.UseQueryArgs<MeQueryVariables>, 'query'>) {
+  return Urql.useQuery<MeQueryResponse, MeQueryVariables>({ query: MeDocument, ...options });
 }

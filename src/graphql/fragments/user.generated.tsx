@@ -1,15 +1,11 @@
-import gql from 'graphql-tag';
+import { gql } from '@urql/core';
 
-export type UserFragmentFragment = {
-  __typename?: 'User';
-  id: number;
-  email: string;
-  fullName: string;
-  createdAt: Date;
-  updatedAt: Date;
-  username: string;
-  roles?: Array<{ __typename?: 'Role'; id: number; roleName: string; capabilities: Array<string> }> | null;
-};
+import type * as Types from '../type.interface';
+
+export type UserFragmentFragment = { __typename?: 'User' } & Pick<
+  Types.User,
+  'id' | 'email' | 'fullName' | 'createdAt' | 'updatedAt' | 'username'
+> & { roles?: Types.Maybe<Array<{ __typename?: 'Role' } & Pick<Types.Role, 'id' | 'roleName' | 'capabilities'>>> };
 
 export const UserFragmentFragmentDoc = gql`
   fragment UserFragment on User {

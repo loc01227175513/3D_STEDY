@@ -1,6 +1,6 @@
 import {
   RefreshTokenDocument,
-  RefreshTokenMutation,
+  RefreshTokenMutationResponse,
   RefreshTokenMutationVariables,
 } from '@/graphql/mutations/refreshToken.generated';
 import { paths } from '@/paths.config';
@@ -45,7 +45,7 @@ const refreshTokenLink = async () => {
     return '';
   }
   try {
-    const res = await apolloClient.mutate<RefreshTokenMutation, RefreshTokenMutationVariables>({
+    const res = await apolloClient.mutate<RefreshTokenMutationResponse, RefreshTokenMutationVariables>({
       mutation: RefreshTokenDocument,
       variables: {
         input: { refreshToken },

@@ -4,6 +4,7 @@ export { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 
 // Apollo and Context
 export { ClientApolloProvider } from '@/apollo/ApolloProvider';
+export { UrqlProvider } from '@/urql/Provider';
 export { UserProvider } from '@/context/UserContext';
 
 // Components
