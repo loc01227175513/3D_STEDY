@@ -34,7 +34,7 @@ jobs:
           sed -i 's|VITE_PUBLIC_API_DOMAIN="http://137.184.13.30:3000"|VITE_PUBLIC_API_DOMAIN="http://64.23.206.54:3000"|g' .env.production
 
       - name: Build application
-        run: npm run build
+        run: npm run build:prod
 
   deploy:
     needs: build-and-test
