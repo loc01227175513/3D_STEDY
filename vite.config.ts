@@ -1,10 +1,10 @@
 import { resolve } from 'path';
-import { defineConfig, loadEnv } from 'vite';
+import { defineConfig, loadEnv, UserConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import viteCommonjs from 'vite-plugin-commonjs';
 
 // https://vitejs.dev/config/
-export default defineConfig(({ mode }: { mode: string }) => {
+export default defineConfig(({ mode }: { mode: string }): UserConfig => {
   // Load env file based on `mode` in the current directory.
   // Set the third parameter to '' to load all env regardless of the `VITE_` prefix.
   const env = loadEnv(mode, process.cwd(), '');
@@ -31,7 +31,7 @@ export default defineConfig(({ mode }: { mode: string }) => {
       outDir: 'build',
       commonjsOptions: {
         transformMixedEsModules: true,
-        include: [/node_modules/],
+        include: [/node_modules/]
       },
       rollupOptions: {
         external: [
@@ -46,6 +46,24 @@ export default defineConfig(({ mode }: { mode: string }) => {
       },
       // Increase warning limit to avoid large chunk warning
       chunkSizeWarningLimit: 1200,
+      // Fix module resolution issues
+      modulePreload: {
+        polyfill: true,
+      },
+      // Fix chunk splitting issues
+      minify: "terser" as "terser" | "esbuild" | boolean,
+      terserOptions: {
+        compress: {
+          drop_console: false,
+          keep_fnames: true
+        },
+        format: {
+          comments: false
+        },
+        keep_classnames: true,
+        keep_fnames: true
+      },
+      sourcemap: true
     },
     define: {
       'process.env': env,
@@ -72,7 +90,7 @@ export default defineConfig(({ mode }: { mode: string }) => {
       esbuildOptions: {
         target: 'es2020',
         jsx: 'automatic' as const,
-        jsxImportSource: '@emotion/react',
+        jsxImportSource: '@emotion/react'
       }
     },
     resolve: {

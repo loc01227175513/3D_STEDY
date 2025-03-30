@@ -1,6 +1,8 @@
 import React from 'react';
 import createCache from '@emotion/cache';
 import { CacheProvider } from '@emotion/react';
+import { ensureFunctionDefault } from './utils/exportHelper';
+import { patchedMuiFunction } from './muiPatches';
 
 // Create a custom cache to fix emotion integration issues
 const customCache = createCache({
@@ -8,12 +10,16 @@ const customCache = createCache({
   prepend: true
 });
 
-// Polyfill for internal_processStyles if needed
-if (!('internal_processStyles' in customCache)) {
-  // Define a simple implementation if missing
-  (customCache as any).internal_processStyles = (selector: string, styles: any) => {
-    return styles;
-  };
+// Fix the internal_processStyles function
+const originalProcessStyles = (customCache as any).sheet?.processStyles;
+(customCache as any).internal_processStyles = typeof originalProcessStyles === 'function' 
+  ? ensureFunctionDefault(originalProcessStyles)
+  : ((selector: string, styles: any) => styles);
+
+// Also patch the sheet insertion function if needed
+if ((customCache as any).sheet?.insert) {
+  const originalInsert = (customCache as any).sheet.insert;
+  (customCache as any).sheet.insert = patchedMuiFunction(originalInsert);
 }
 
 interface StyledEngineProviderProps {
