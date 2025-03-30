@@ -3,9 +3,9 @@ import { DRAWER_WIDTH, MainContent, MainContentShift } from '@/pages/public/styl
 import { paths } from '@/paths.config';
 import useDrawerTemplateOpen from '@/store/drawerTemplateOpen';
 import useToolbarStore from '@/store/Toolbar';
-import View3dIcon from '@mui/icons-material/ViewInAr';
+import ViewInArIcon from '@mui/icons-material/ViewInAr';
 import ViewModuleIcon from '@mui/icons-material/ViewModule';
-import VrpanoIcon from '@mui/icons-material/VrPano';
+import VrPanoIcon from '@mui/icons-material/VrPano';
 import { Box, Button, ButtonGroup, Drawer, Stack, Typography } from '@mui/material';
 import { Outlet, useNavigate } from 'react-router-dom';
 
@@ -145,14 +145,14 @@ const LayoutDesign = (): React.JSX.Element => {
                 2D
               </Button>
               <Button
-                startIcon={<View3dIcon />}
+                startIcon={<ViewInArIcon />}
                 onClick={() => handleViewModeChange('3D')}
                 sx={buttonStyles.viewModeButton(viewMode === '3D')}
               >
                 3D
               </Button>
               <Button
-                startIcon={<VrpanoIcon />}
+                startIcon={<VrPanoIcon />}
                 onClick={() => handleViewModeChange('VIRTUAL')}
                 sx={buttonStyles.viewModeButton(viewMode === 'VIRTUAL')}
               >

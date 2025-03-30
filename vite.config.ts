@@ -16,7 +16,21 @@ export default defineConfig(({ mode }) => {
     },
     plugins: [react()],
     define: {
-      'process.env': env,
+      'process.env': {
+        ...env,
+        NODE_ENV: mode
+      },
+    },
+    build: {
+      commonjsOptions: {
+        transformMixedEsModules: true,
+      },
+      rollupOptions: {
+        external: ['@mui/icons-material/VrPano', '@mui/icons-material/ViewInAr', '@mui/icons-material/ViewModule'],
+      },
+    },
+    optimizeDeps: {
+      include: ['@mui/material', '@mui/icons-material'],
     },
   };
 });
