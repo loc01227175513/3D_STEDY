@@ -12,11 +12,12 @@ env:
   SERVER_HOST: 64.23.206.54
   SERVER_USERNAME: root
   SERVER_PASSWORD: ${{ secrets.PASSWORD }}
+  API_DOMAIN: http://137.184.13.30:3000
+  API_URL: /graphql
 
 jobs:
-  build-and-test:
+  build-test-deploy:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
 
@@ -31,29 +32,25 @@ jobs:
 
       - name: Update API configuration
         run: |
-          sed -i 's|VITE_PUBLIC_API_DOMAIN="http://137.184.13.30:3000"|VITE_PUBLIC_API_DOMAIN="http://137.184.13.30:3000"|g' .env.production
+          sed -i 's|VITE_PUBLIC_API_DOMAIN="http://137.184.13.30:3000"|VITE_PUBLIC_API_DOMAIN="${{ env.API_DOMAIN }}"|g' .env.production
 
       - name: Build application
         run: npm run build
 
-  deploy:
-    needs: build-and-test
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/build-docker' || github.ref == 'refs/heads/main'
-
-    steps:
-      - uses: actions/checkout@v4
-
+      # Only deploy when pushing to main or build-docker branches, not on PRs
       - name: Set up Docker Buildx
+        if: github.event_name == 'push' && (github.ref == 'refs/heads/build-docker' || github.ref == 'refs/heads/main')
         uses: docker/setup-buildx-action@v3
 
       - name: Login to Docker Hub
+        if: github.event_name == 'push' && (github.ref == 'refs/heads/build-docker' || github.ref == 'refs/heads/main')
         uses: docker/login-action@v3
         with:
           username: taiphamdac
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Build and push Docker image
+        if: github.event_name == 'push' && (github.ref == 'refs/heads/build-docker' || github.ref == 'refs/heads/main')
         uses: docker/build-push-action@v5
         with:
           context: .
@@ -65,10 +62,11 @@ jobs:
           cache-to: type=gha,mode=max
           build-args: |
             NODE_ENV=production
-            VITE_PUBLIC_API_DOMAIN=http://137.184.13.30:3000
-            VITE_PUBLIC_API_URL=/graphql
+            VITE_PUBLIC_API_DOMAIN=${{ env.API_DOMAIN }}
+            VITE_PUBLIC_API_URL=${{ env.API_URL }}
 
       - name: Deploy to server
+        if: github.event_name == 'push' && (github.ref == 'refs/heads/build-docker' || github.ref == 'refs/heads/main')
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ env.SERVER_HOST }}
@@ -100,8 +98,8 @@ jobs:
                 restart: always
                 environment:
                   - NODE_ENV=production
-                  - VITE_PUBLIC_API_DOMAIN=http://137.184.13.30:3000
-                  - VITE_PUBLIC_API_URL=/graphql
+                  - VITE_PUBLIC_API_DOMAIN=${{ env.API_DOMAIN }}
+                  - VITE_PUBLIC_API_URL=${{ env.API_URL }}
                 healthcheck:
                   test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
                   interval: 30s
