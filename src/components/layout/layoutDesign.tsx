@@ -5,7 +5,7 @@ import useDrawerTemplateOpen from '@/store/drawerTemplateOpen';
 import useToolbarStore from '@/store/Toolbar';
 import View3dIcon from '@mui/icons-material/ViewInAr';
 import ViewModuleIcon from '@mui/icons-material/ViewModule';
-import VrpanoIcon from '@mui/icons-material/VrPano';
+import VrpanoIcon from '@mui/icons-material/Vrpano';
 import { Box, Button, ButtonGroup, Drawer, Stack, Typography } from '@mui/material';
 import { Outlet, useNavigate } from 'react-router-dom';
 
