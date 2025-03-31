@@ -140,7 +140,7 @@ jobs:
             cat /root/nginx/nginx.conf
             
             # Create docker-compose.yml with a different approach
-            cat > docker-compose.yml << 'EOF'
+            cat > docker-compose.yml << EOF
 version: '3'
 services:
   app:
