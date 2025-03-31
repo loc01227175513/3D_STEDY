@@ -138,6 +138,7 @@ jobs:
             # Create docker-compose.yml
             cat > docker-compose.yml << 'EOF'
             version: '3'
+
             services:
               app:
                 image: ${{ env.IMAGE_NAME }}:latest
@@ -158,6 +159,7 @@ jobs:
                 tmpfs:
                   - /tmp
                   - /var/cache/nginx
+
             networks:
               app_network:
                 driver: bridge
