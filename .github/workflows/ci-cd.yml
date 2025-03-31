@@ -77,34 +77,34 @@ jobs:
             docker pull ${{ env.IMAGE_NAME }}:latest
             
             # Create docker-compose.yml
-            cat > docker-compose.yml << "EOL"
-            version: '3'
-            services:
-              app:
-                image: ${{ env.IMAGE_NAME }}:latest
-                ports:
-                  - "3000:3000"
-                restart: always
-                environment:
-                  NODE_ENV: production
-                  VITE_PUBLIC_API_DOMAIN: http://137.184.13.30:3000
-                  VITE_PUBLIC_API_URL: /graphql
-                  PORT: 3000
-                  HOST: 0.0.0.0
-                volumes:
-                  - ./nginx.production.conf:/etc/nginx/conf.d/default.conf
-                healthcheck:
-                  test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
-                  interval: 30s
-                  timeout: 10s
-                  retries: 3
-                  start_period: 40s
-                networks:
-                  - app_network
-            networks:
-              app_network:
-                driver: bridge
-            EOL
+            cat > docker-compose.yml << 'EOL'
+version: '3'
+services:
+  app:
+    image: ${{ env.IMAGE_NAME }}:latest
+    ports:
+      - "3000:3000"
+    restart: always
+    environment:
+      NODE_ENV: production
+      VITE_PUBLIC_API_DOMAIN: http://137.184.13.30:3000
+      VITE_PUBLIC_API_URL: /graphql
+      PORT: 3000
+      HOST: 0.0.0.0
+    volumes:
+      - ./nginx.production.conf:/etc/nginx/conf.d/default.conf
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - app_network
+networks:
+  app_network:
+    driver: bridge
+EOL
 
             # Stop and remove existing containers
             docker-compose down || true
