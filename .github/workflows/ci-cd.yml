@@ -75,7 +75,7 @@ jobs:
             # Create directory if it doesn't exist
             mkdir -p /var/www/3d_stedy
             # Pull latest image
-            docker pull taiphamdac/3d_stedy:7879cb62e0d4cd89d43d4e54d1962364db57ac6f
+            docker pull ${{ env.IMAGE_NAME }}:latest
             # Backup current deployment
             if [ -d "/var/www/3d_stedy" ]; then
               tar -czf /var/www/3d_stedy_backup_$(date +%Y%m%d_%H%M%S).tar.gz /var/www/3d_stedy
@@ -190,7 +190,7 @@ jobs:
             version: '3'
             services:
               app:
-                image: taiphamdac/3d_stedy:7879cb62e0d4cd89d43d4e54d1962364db57ac6f
+                image: ${{ env.IMAGE_NAME }}:latest
                 ports:
                   - "3000:3000"
                 restart: always
