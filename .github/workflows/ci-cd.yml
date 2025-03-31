@@ -136,7 +136,7 @@ jobs:
             EOF
             
             # Create docker-compose.yml
-            cat > docker-compose.yml << 'EOF'
+            cat > docker-compose.yml << EOF
             version: '3'
 
             services:
@@ -147,8 +147,8 @@ jobs:
                 restart: always
                 environment:
                   NODE_ENV: production
-                  VITE_PUBLIC_API_DOMAIN: http://137.184.13.30:3000
-                  VITE_PUBLIC_API_URL: /graphql
+                  VITE_PUBLIC_API_DOMAIN: ${{ env.API_DOMAIN }}
+                  VITE_PUBLIC_API_URL: ${{ env.API_URL }}
                   PORT: 3000
                   HOST: 0.0.0.0
                 volumes:
