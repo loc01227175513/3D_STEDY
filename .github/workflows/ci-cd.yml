@@ -31,7 +31,7 @@ jobs:
 
       - name: Update API configuration
         run: |
-          sed -i 's|VITE_PUBLIC_API_DOMAIN="http://137.184.13.30:3000"|g' .env.production
+          sed -i 's|VITE_PUBLIC_API_DOMAIN="http://137.184.13.30:3000"|VITE_PUBLIC_API_DOMAIN="http://137.184.13.30:3000"|g' .env.production
 
       - name: Build application
         run: npm run build
