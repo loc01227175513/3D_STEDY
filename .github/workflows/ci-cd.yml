@@ -31,7 +31,7 @@ jobs:
 
       - name: Update API configuration
         run: |
-          sed -i 's|VITE_PUBLIC_API_DOMAIN="http://137.184.13.30:3000"|VITE_PUBLIC_API_DOMAIN="http://64.23.206.54:3000"|g' .env.production
+          sed -i 's|VITE_PUBLIC_API_DOMAIN="http://137.184.13.30:3000"|g' .env.production
 
       - name: Build application
         run: npm run build
@@ -65,7 +65,7 @@ jobs:
           cache-to: type=gha,mode=max
           build-args: |
             NODE_ENV=production
-            VITE_PUBLIC_API_DOMAIN=http://64.23.206.54:3000
+            VITE_PUBLIC_API_DOMAIN=http://137.184.13.30:3000
             VITE_PUBLIC_API_URL=/graphql
 
       - name: Deploy to server
@@ -100,7 +100,7 @@ jobs:
                 restart: always
                 environment:
                   - NODE_ENV=production
-                  - VITE_PUBLIC_API_DOMAIN=http://64.23.206.54:3000
+                  - VITE_PUBLIC_API_DOMAIN=http://137.184.13.30:3000
                   - VITE_PUBLIC_API_URL=/graphql
                 healthcheck:
                   test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
