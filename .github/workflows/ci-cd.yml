@@ -97,80 +97,63 @@ jobs:
             # Ensure the directory exists with correct permissions
             mkdir -p /root/nginx
             
-            # Create the nginx configuration file and verify its content
-            cat > /root/nginx/nginx.conf << 'EOF'
-            server {
-                listen 3000;
-                server_name _;
-
-                root /app/dist;
-
-                # Compression
-                gzip on;
-                gzip_comp_level 6;
-                gzip_vary on;
-                gzip_min_length 1000;
-                gzip_proxied any;
-                gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript;
-                gzip_buffers 16 8k;
-
-                # Health check endpoint
-                location /health {
-                    return 200 'OK';
-                    add_header Content-Type text/plain;
-                }
-
-                # GraphQL API endpoint
-                location /graphql {
-                    proxy_pass http://137.184.13.30:3000/graphql;
-                    proxy_http_version 1.1;
-                    proxy_set_header Host $host;
-                    proxy_set_header X-Real-IP $remote_addr;
-                }
-
-                # All other requests go to the static build
-                location / {
-                    try_files $uri $uri/ /index.html;
-                }
-            }
-            EOF
+            # Create the nginx configuration file using echo with a single command
+            echo 'server {
+    listen 3000;
+    server_name _;
+    root /app/dist;
+    # Compression
+    gzip on;
+    gzip_comp_level 6;
+    gzip_vary on;
+    gzip_min_length 1000;
+    gzip_proxied any;
+    gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript;
+    gzip_buffers 16 8k;
+    # Health check endpoint
+    location /health {
+        return 200 '"'"'OK'"'"';
+        add_header Content-Type text/plain;
+    }
+    # GraphQL API endpoint
+    location /graphql {
+        proxy_pass http://137.184.13.30:3000/graphql;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+    # All other requests go to the static build
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+}' > /root/nginx/nginx.conf
             
-            # Verify the nginx configuration file content
-            echo "Checking nginx.conf content:"
-            cat /root/nginx/nginx.conf
-            
-            # Create docker-compose.yml with a different approach
-            cat > docker-compose.yml << 'EOFMARKER'
-            version: '3'
-            services:
-              app:
-                image: taiphamdac/3d_stedy:latest
-                ports:
-                  - "3000:3000"
-                restart: always
-                environment:
-                  NODE_ENV: production
-                  VITE_PUBLIC_API_DOMAIN: http://137.184.13.30:3000
-                  VITE_PUBLIC_API_URL: /graphql
-                  PORT: 3000
-                  HOST: 0.0.0.0
-                volumes:
-                  - /root/nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
-                networks:
-                  - app_network
-                read_only: false
-                tmpfs:
-                  - /tmp
-                  - /var/cache/nginx
+            # Create docker-compose.yml as a single command
+            echo 'version: '"'"'3'"'"'
+services:
+  app:
+    image: taiphamdac/3d_stedy:latest
+    ports:
+      - "3000:3000"
+    restart: always
+    environment:
+      NODE_ENV: production
+      VITE_PUBLIC_API_DOMAIN: http://137.184.13.30:3000
+      VITE_PUBLIC_API_URL: /graphql
+      PORT: 3000
+      HOST: 0.0.0.0
+    volumes:
+      - /root/nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    networks:
+      - app_network
+    read_only: false
+    tmpfs:
+      - /tmp
+      - /var/cache/nginx
 
-            networks:
-              app_network:
-                driver: bridge
-            EOFMARKER
-            
-            # Verify the docker-compose.yml content
-            echo "Checking docker-compose.yml content:"
-            cat docker-compose.yml
+networks:
+  app_network:
+    driver: bridge' > docker-compose.yml
             
             # Stop and remove existing containers
             docker-compose down || true
