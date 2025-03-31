@@ -90,7 +90,7 @@ export const dashboard = {
       headerContent: {
         title: 'Communities',
         showAddButton: true,
-        onAddClick: (_navigate: NavigateFunction) => {},
+        onAddClick: (/* unused */ _: NavigateFunction) => {},
         icon: icons.add,
       },
     },
@@ -104,7 +104,7 @@ export const dashboard = {
       headerContent: {
         title: 'Floorplans',
         showAddButton: true,
-        onAddClick: (_navigate: NavigateFunction) => {},
+        onAddClick: (/* unused */ _: NavigateFunction) => {},
         icon: icons.add,
       },
     },
@@ -118,7 +118,7 @@ export const dashboard = {
       headerContent: {
         title: 'Customers',
         showAddButton: true,
-        onAddClick: (_navigate: NavigateFunction) => {},
+        onAddClick: (/* unused */ _: NavigateFunction) => {},
         icon: icons.add,
       },
     },
@@ -132,7 +132,7 @@ export const dashboard = {
       headerContent: {
         title: 'Analytics & Report',
         showAddButton: true,
-        onAddClick: (_navigate: NavigateFunction) => {},
+        onAddClick: (/* unused */ _: NavigateFunction) => {},
         icon: icons.add,
       },
     },
@@ -146,7 +146,7 @@ export const dashboard = {
       headerContent: {
         title: 'Users',
         showAddButton: true,
-        onAddClick: (_navigate: NavigateFunction) => {},
+        onAddClick: (/* unused */ _: NavigateFunction) => {},
         icon: icons.add,
       },
     },
@@ -160,7 +160,7 @@ export const dashboard = {
       headerContent: {
         title: 'Settings',
         showAddButton: true,
-        onAddClick: (_navigate: NavigateFunction) => {},
+        onAddClick: (/* unused */ _: NavigateFunction) => {},
         icon: icons.add,
       },
     },
@@ -180,7 +180,7 @@ export const dashboardDown = {
       headerContent: {
         title: 'START NEW DESIGN',
         showAddButton: true,
-        onAddClick: (_navigate: NavigateFunction) => {},
+        onAddClick: (/* unused */ _: NavigateFunction) => {},
         icon: icons.add,
       },
     },
@@ -196,7 +196,7 @@ export const dashboardDown = {
       headerContent: {
         title: 'Admin User',
         showAddButton: true,
-        onAddClick: (_navigate: NavigateFunction) => {},
+        onAddClick: (/* unused */ _: NavigateFunction) => {},
         icon: icons.add,
       },
     },

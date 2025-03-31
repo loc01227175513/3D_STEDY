@@ -5,6 +5,7 @@ import SendIcon from '@mui/icons-material/Send';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import { Box, Paper, SelectChangeEvent, Typography } from '@mui/material';
 import { styled } from '@mui/material/styles';
+import { useNavigate } from 'react-router-dom';
 
 import ButtonEdit from '../../../../components/dashBoard/buttonEdit/buttonEdit';
 import SelectEdit from '../../../../components/dashBoard/select/select';
@@ -12,7 +13,6 @@ import TextFieldEdit from '../../../../components/dashBoard/textFieldEdit/textFi
 import { useCreateLeadMutation } from '../../../../graphql/mutations/createLead.generated';
 import { useCommunitiesQuery } from '../../../../graphql/queries/communities.generated';
 import { useProductsQuery } from '../../../../graphql/queries/products.generated';
-import { useNavigate } from 'react-router-dom';
 import { paths } from '../../../../paths.config';
 import { ToastMessage } from '../../../../utils/toast';
 
@@ -105,7 +105,7 @@ const AddLeadPage = (): React.JSX.Element => {
 
       // Show success toast
       ToastMessage('success', 'Lead created successfully');
-      
+
       // Navigate back to dashboard
       navigate(paths.dashboard);
     } catch (error) {
