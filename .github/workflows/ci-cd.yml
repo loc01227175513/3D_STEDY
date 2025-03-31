@@ -11,7 +11,6 @@ env:
   IMAGE_NAME: taiphamdac/3d_stedy
   SERVER_HOST: 64.23.206.54
   SERVER_USERNAME: root
-  SERVER_PASSWORD: ${{ secrets.PASSWORD }}
   API_DOMAIN: http://137.184.13.30:3000
   API_URL: /graphql
 
@@ -87,78 +86,15 @@ jobs:
         with:
           host: ${{ env.SERVER_HOST }}
           username: ${{ env.SERVER_USERNAME }}
-          password: ${{ secrets.PASSWORD }}
+          password: ${{ secrets.SERVER_PASSWORD }}
           port: 22
           script_stop: true
           script: |
             # Pull latest image
             docker pull ${{ env.IMAGE_NAME }}:latest
             
-            # Ensure the directory exists with correct permissions
-            mkdir -p /root/nginx
-            
-            # Create the nginx configuration file using echo with a single command
-            echo 'server {
-    listen 3000;
-    server_name _;
-    root /app/dist;
-    # Compression
-    gzip on;
-    gzip_comp_level 6;
-    gzip_vary on;
-    gzip_min_length 1000;
-    gzip_proxied any;
-    gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript;
-    gzip_buffers 16 8k;
-    # Health check endpoint
-    location /health {
-        return 200 '"'"'OK'"'"';
-        add_header Content-Type text/plain;
-    }
-    # GraphQL API endpoint
-    location /graphql {
-        proxy_pass http://137.184.13.30:3000/graphql;
-        proxy_http_version 1.1;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-    }
-    # All other requests go to the static build
-    location / {
-        try_files $uri $uri/ /index.html;
-    }
-}' > /root/nginx/nginx.conf
-            
-            # Create docker-compose.yml as a single command
-            echo 'version: '"'"'3'"'"'
-services:
-  app:
-    image: taiphamdac/3d_stedy:latest
-    ports:
-      - "3000:3000"
-    restart: always
-    environment:
-      NODE_ENV: production
-      VITE_PUBLIC_API_DOMAIN: http://137.184.13.30:3000
-      VITE_PUBLIC_API_URL: /graphql
-      PORT: 3000
-      HOST: 0.0.0.0
-    volumes:
-      - /root/nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
-    networks:
-      - app_network
-    read_only: false
-    tmpfs:
-      - /tmp
-      - /var/cache/nginx
-
-networks:
-  app_network:
-    driver: bridge' > docker-compose.yml
-            
             # Stop and remove existing containers
-            docker-compose down || true
-            
-            # Clean up unused resources
+            docker-compose down -v --remove-orphans || true
             docker system prune -f
             
             # Start the new deployment
@@ -168,25 +104,12 @@ networks:
             echo "Waiting for container to start..."
             sleep 30
             
-            # Check container status
-            if ! docker ps | grep -q "app-1"; then
-              echo "Container failed to start"
-              docker-compose logs
+            # Check container health
+            CONTAINER_ID=$(docker ps -q --filter "name=app")
+            STATUS=$(docker inspect --format='{{.State.Health.Status}}' $CONTAINER_ID)
+            if [[ "$STATUS" != "healthy" ]]; then
+              echo "Health check failed"
+              docker logs $CONTAINER_ID
               exit 1
             fi
-            
-            # Health check
-            echo "Checking container health..."
-            for i in {1..20}; do
-              if curl -f http://localhost:3000/health; then
-                echo "Health check passed!"
-                break
-              fi
-              if [ $i -eq 20 ]; then
-                echo "Health check failed"
-                docker-compose logs
-                exit 1
-              fi
-              echo "Waiting for service to be ready... ($i/20)"
-              sleep 5
-            done
+            echo "Deployment successful!"
