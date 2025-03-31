@@ -30,9 +30,22 @@ jobs:
       - name: Install dependencies
         run: npm ci --legacy-peer-deps
 
-      - name: Update API configuration
+      - name: Create production environment file
         run: |
-          sed -i 's|VITE_PUBLIC_API_DOMAIN="http://137.184.13.30:3000"|VITE_PUBLIC_API_DOMAIN="${{ env.API_DOMAIN }}"|g' .env.production
+          cat > .env.production << EOL
+          NODE_ENV=production
+          VITE_NAME_ENV=production
+          VITE_PUBLIC_API_URL="${{ env.API_URL }}"
+          VITE_PUBLIC_API_DOMAIN="${{ env.API_DOMAIN }}"
+          
+          VITE_FIREBASE_API_KEY=AIzaSyDXPMaIAIR30BjUU0MEGDXixeIZssyBQm8
+          VITE_FIREBASE_AUTH_DOMAIN=apis-cores.firebaseapp.com
+          VITE_FIREBASE_PROJECT_ID=apis-cores
+          VITE_FIREBASE_STORAGE_BUCKET=apis-cores.firebasestorage.app
+          VITE_FIREBASE_MESSAGING_SENDER_ID=797424777511
+          VITE_FIREBASE_APP_ID=1:797424777511:web:a1ccd2880f4e8c9aa49102
+          VITE_FIREBASE_VAPID_KEY=BO0fue6rke8-zGDRnI_mhL6pilCwYTu6tZ-KGGdegqIZAJ32GKcLx8pXTDH56hoKOEZsQKxpdODNcfg-3_eYV_c
+          EOL
 
       - name: Build application
         run: npm run build
@@ -66,11 +79,14 @@ jobs:
             VITE_PUBLIC_API_URL=${{ env.API_URL }}
 
       - name: Deploy to server
+        if: github.event_name == 'push' && (github.ref == 'refs/heads/build-docker' || github.ref == 'refs/heads/main')
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USERNAME }}
-          password: ${{ secrets.SERVER_PASSWORD }}
+          host: ${{ env.SERVER_HOST }}
+          username: ${{ env.SERVER_USERNAME }}
+          password: ${{ secrets.PASSWORD }}
+          port: 22
+          script_stop: true
           script: |
             # Create directory if it doesn't exist
             mkdir -p /var/www/3d_stedy
