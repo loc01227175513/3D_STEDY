@@ -9,47 +9,57 @@ generates:
     plugins:
       - typescript
     config:
-      constEnums: false
-      enumsAsTypes: false
+      constEnums: true
+      enumsAsTypes: true
       numericEnums: false
       futureProofEnums: false
-      enumsAsConst: false
-      avoidOptionals: false
-      skipTypename: false
-      nonOptionalTypename: false
+      enumsAsConst: true
+  src/:
+    preset: near-operation-file
+    presetConfig:
+      extension: .generated.tsx
+      baseTypesPath: graphql/type.interface.ts
+    plugins:
+      - typescript-operations
+      - typescript-urql
+    config:
+      flattenGeneratedTypes: false
+      preResolveTypes: false
+      skipTypeNameForRoot: false
+      dedupeOperationSuffix: false
+      omitOperationSuffix: false
+      exportFragmentSpreadSubTypes: false
+      withComponent: false
+      withHOC: false
+      withMutationFn: false
+      withRefetchFn: false
+      withHooks: true
+      addDocBlocks: false
+      reactApolloVersion: 3
+      withLazyQueries: true
+      operationResultSuffix: 'Response'
+      gqlImport: '@urql/core#gql'
       scalars:
-        DateTime: string
-        JSON: any
-        ID: string
-  src/graphql/fragments/:
-    preset: near-operation-file
-    presetConfig:
-      extension: .generated.tsx
-      baseTypesPath: ../type.interface.ts
-    plugins:
-      - typescript-operations
-      - typescript-urql
-    config:
-      fragmentMasking: false
-  src/graphql/mutations/:
-    preset: near-operation-file
-    presetConfig:
-      extension: .generated.tsx
-      baseTypesPath: ../type.interface.ts
-      importFragmentTypesFrom: ../fragments/
-    plugins:
-      - typescript-operations
-      - typescript-urql
-    config:
-      fragmentMasking: false
-  src/graphql/queries/:
-    preset: near-operation-file
-    presetConfig:
-      extension: .generated.tsx
-      baseTypesPath: ../type.interface.ts
-      importFragmentTypesFrom: ../fragments/
-    plugins:
-      - typescript-operations
-      - typescript-urql
-    config:
-      fragmentMasking: false
+        Upload: any
+      declarationKind:
+        type: 'interface'
+        input: 'interface'
+config:
+  enumPrefix: true
+  noExport: false
+  immutableTypes: false
+  onlyOperationTypes: false
+  useTypeImports: true
+  wrapFieldDefinitions: false
+  skipTypename: false
+  nonOptionalTypename: false
+  fieldWrapperValue: T
+  maybeValue: T | null | undefined
+  namingConvention:
+    typeNames: pascal-case#pascalCase
+    enumValues: upper-case#upperCase
+    transformUnderscore: true
+
+hooks:
+  afterOneFileWrite:
+    - prettier --write

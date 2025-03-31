@@ -13,9 +13,9 @@ export type Scalars = {
   Int: { input: number; output: number };
   Float: { input: number; output: number };
   /** A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format. */
-  DateTime: { input: string; output: string };
+  DateTime: { input: any; output: any };
   /** The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf). */
-  JSON: { input: Record<string, unknown>; output: Record<string, unknown> };
+  JSON: { input: any; output: any };
 };
 
 export type Category = {
@@ -103,14 +103,14 @@ export type CreateKitchenTemplateInput = {
 
 export type CreateLeadInput = {
   address?: InputMaybe<Scalars['String']['input']>;
-  community?: InputMaybe<Scalars['String']['input']>;
+  communityId?: InputMaybe<Scalars['String']['input']>;
   consultant?: InputMaybe<Scalars['String']['input']>;
   email?: InputMaybe<Scalars['String']['input']>;
   full_name: Scalars['String']['input'];
   home_specialist?: InputMaybe<Scalars['String']['input']>;
   lead_source?: InputMaybe<Scalars['String']['input']>;
   phone?: InputMaybe<Scalars['String']['input']>;
-  productId?: InputMaybe<Scalars['Float']['input']>;
+  productId?: InputMaybe<Scalars['Int']['input']>;
   sale_agent?: InputMaybe<Scalars['String']['input']>;
   state?: InputMaybe<Scalars['String']['input']>;
   status?: InputMaybe<Scalars['String']['input']>;
@@ -249,6 +249,7 @@ export type FilterLeadInput = {
   keyword?: InputMaybe<Scalars['String']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   page?: InputMaybe<Scalars['Int']['input']>;
+  productId?: InputMaybe<Scalars['Int']['input']>;
   status?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -346,7 +347,8 @@ export type KitchenTemplatePaginatedResponse = {
 export type Lead = {
   __typename?: 'Lead';
   address?: Maybe<Scalars['String']['output']>;
-  community?: Maybe<Scalars['String']['output']>;
+  community?: Maybe<Communities>;
+  communityId?: Maybe<Scalars['String']['output']>;
   consultant?: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['DateTime']['output'];
   deletedAt?: Maybe<Scalars['DateTime']['output']>;
@@ -357,7 +359,7 @@ export type Lead = {
   lead_source?: Maybe<Scalars['String']['output']>;
   phone?: Maybe<Scalars['String']['output']>;
   product?: Maybe<Product>;
-  productId?: Maybe<Scalars['Float']['output']>;
+  productId?: Maybe<Scalars['Int']['output']>;
   sale_agent?: Maybe<Scalars['String']['output']>;
   state?: Maybe<Scalars['String']['output']>;
   status?: Maybe<Scalars['String']['output']>;
@@ -406,18 +408,19 @@ export type Mutation = {
   login: LoginResponse;
   logout: Scalars['Boolean']['output'];
   refreshToken: RefreshTokenResponse;
-  removeCategory: Scalars['Boolean']['output'];
-  removeCommunity: Scalars['Boolean']['output'];
-  removeCustomerInfo: Scalars['Boolean']['output'];
-  removeKitchenTemplate: Scalars['Boolean']['output'];
-  removeLead: Scalars['Boolean']['output'];
-  removeProduct: Scalars['Boolean']['output'];
-  removeRole: Scalars['Boolean']['output'];
+  removeCategories: Scalars['Boolean']['output'];
+  removeCommunities: Scalars['Boolean']['output'];
+  removeCustomerInfos: Scalars['Boolean']['output'];
+  removeKitchenTemplates: Scalars['Boolean']['output'];
+  removeLeads: Scalars['Boolean']['output'];
+  removeProducts: Scalars['Boolean']['output'];
   removeRoleFromUser: User;
-  removeSerie: Scalars['Boolean']['output'];
-  removeStore: Scalars['Boolean']['output'];
-  removeStyle: Scalars['Boolean']['output'];
-  removeTenant: Scalars['Boolean']['output'];
+  removeRoles: Scalars['Boolean']['output'];
+  removeSeries: Scalars['Boolean']['output'];
+  removeStores: Scalars['Boolean']['output'];
+  removeStyles: Scalars['Boolean']['output'];
+  removeTenants: Scalars['Boolean']['output'];
+  removeUsers: Scalars['Boolean']['output'];
   updateCategory: Category;
   updateCommunity: Communities;
   updateCustomerInfo: CustomerInfo;
@@ -496,32 +499,28 @@ export type MutationRefreshTokenArgs = {
   input: RefreshTokenInput;
 };
 
-export type MutationRemoveCategoryArgs = {
-  categoryId?: InputMaybe<Scalars['ID']['input']>;
+export type MutationRemoveCategoriesArgs = {
+  categoryIds?: InputMaybe<Array<Scalars['ID']['input']>>;
 };
 
-export type MutationRemoveCommunityArgs = {
-  communityId?: InputMaybe<Scalars['ID']['input']>;
+export type MutationRemoveCommunitiesArgs = {
+  communityIds?: InputMaybe<Array<Scalars['ID']['input']>>;
 };
 
-export type MutationRemoveCustomerInfoArgs = {
-  customerInfoId: Scalars['ID']['input'];
+export type MutationRemoveCustomerInfosArgs = {
+  customerInfoIds: Array<Scalars['ID']['input']>;
 };
 
-export type MutationRemoveKitchenTemplateArgs = {
-  kitchenTemplateId?: InputMaybe<Scalars['ID']['input']>;
+export type MutationRemoveKitchenTemplatesArgs = {
+  kitchenTemplateIds: Array<Scalars['ID']['input']>;
 };
 
-export type MutationRemoveLeadArgs = {
-  leadId?: InputMaybe<Scalars['ID']['input']>;
+export type MutationRemoveLeadsArgs = {
+  leadIds: Array<Scalars['ID']['input']>;
 };
 
-export type MutationRemoveProductArgs = {
-  id: Scalars['Int']['input'];
-};
-
-export type MutationRemoveRoleArgs = {
-  id: Scalars['Int']['input'];
+export type MutationRemoveProductsArgs = {
+  ids: Array<Scalars['Int']['input']>;
 };
 
 export type MutationRemoveRoleFromUserArgs = {
@@ -529,20 +528,28 @@ export type MutationRemoveRoleFromUserArgs = {
   userId: Scalars['Int']['input'];
 };
 
-export type MutationRemoveSerieArgs = {
-  serieId?: InputMaybe<Scalars['ID']['input']>;
+export type MutationRemoveRolesArgs = {
+  ids: Array<Scalars['Int']['input']>;
 };
 
-export type MutationRemoveStoreArgs = {
-  storeId?: InputMaybe<Scalars['ID']['input']>;
+export type MutationRemoveSeriesArgs = {
+  serieIds: Array<Scalars['ID']['input']>;
 };
 
-export type MutationRemoveStyleArgs = {
-  styleId?: InputMaybe<Scalars['ID']['input']>;
+export type MutationRemoveStoresArgs = {
+  storeIds: Array<Scalars['ID']['input']>;
 };
 
-export type MutationRemoveTenantArgs = {
-  tenantId?: InputMaybe<Scalars['ID']['input']>;
+export type MutationRemoveStylesArgs = {
+  styleIds: Array<Scalars['ID']['input']>;
+};
+
+export type MutationRemoveTenantsArgs = {
+  tenantIds: Array<Scalars['ID']['input']>;
+};
+
+export type MutationRemoveUsersArgs = {
+  userIds: Array<Scalars['Int']['input']>;
 };
 
 export type MutationUpdateCategoryArgs = {
@@ -974,7 +981,7 @@ export type UpdateKitchenTemplateInput = {
 
 export type UpdateLeadInput = {
   address?: InputMaybe<Scalars['String']['input']>;
-  community?: InputMaybe<Scalars['String']['input']>;
+  communityId?: InputMaybe<Scalars['String']['input']>;
   consultant?: InputMaybe<Scalars['String']['input']>;
   email?: InputMaybe<Scalars['String']['input']>;
   full_name?: InputMaybe<Scalars['String']['input']>;
@@ -982,7 +989,7 @@ export type UpdateLeadInput = {
   id: Scalars['ID']['input'];
   lead_source?: InputMaybe<Scalars['String']['input']>;
   phone?: InputMaybe<Scalars['String']['input']>;
-  productId?: InputMaybe<Scalars['Float']['input']>;
+  productId?: InputMaybe<Scalars['Int']['input']>;
   sale_agent?: InputMaybe<Scalars['String']['input']>;
   state?: InputMaybe<Scalars['String']['input']>;
   status?: InputMaybe<Scalars['String']['input']>;

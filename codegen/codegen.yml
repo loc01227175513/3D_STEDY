@@ -24,7 +24,6 @@ generates:
       namingConvention: keep
       skipTypename: false
       nonOptionalTypename: false
-      scalars: { DateTime: { input: 'string', output: 'string' }, JSON: { input: 'string', output: 'string' } }
   src/:
     preset: near-operation-file
     presetConfig:
@@ -56,7 +55,8 @@ generates:
       addDocBlocks: false
       reactApolloVersion: 3
       operationResultSuffix: 'Response'
-      scalars: { Upload: any }
+      scalars:
+        Upload: any
       declarationKind:
         type: 'interface'
         input: 'interface'

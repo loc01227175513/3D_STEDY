@@ -56,6 +56,8 @@ export interface DataGridProps<T> {
   statusOptions?: { value: string; label: string }[];
   statusTabOptions?: StatusTabOption[];
   pageSizeOptions?: { value: string; label: string }[];
+  onSelectionChange?: (selectedIds: (string | number)[]) => void;
+  onDeleteClick?: () => void;
 }
 
 // Create a context for the DataGrid props
@@ -125,6 +127,8 @@ export const DataGrid = <T extends Record<string, unknown>>(props: DataGridProps
     statusOptions,
     statusTabOptions,
     pageSizeOptions,
+    onSelectionChange,
+    onDeleteClick,
   } = props;
 
   const [selectionModel, setSelectionModel] = useState<GridRowSelectionModel>([]);
@@ -278,6 +282,14 @@ export const DataGrid = <T extends Record<string, unknown>>(props: DataGridProps
     setIsModalOpen(false);
   };
 
+  // Update the onRowSelectionModelChange handler
+  const handleSelectionChange = (newSelectionModel: GridRowSelectionModel) => {
+    setSelectionModel(newSelectionModel);
+    if (onSelectionChange) {
+      onSelectionChange(newSelectionModel as (string | number)[]);
+    }
+  };
+
   return (
     <Box sx={dataGridStyles.container}>
       {/* Custom Toolbar */}
@@ -292,8 +304,8 @@ export const DataGrid = <T extends Record<string, unknown>>(props: DataGridProps
         <IconButton size="small">
           <Box component="img" src="/dashboard/save.svg" sx={{ width: '18px', height: '18px' }} />
         </IconButton>
-        <IconButton size="small">
-          <Box component="img" src="/dashboard/delete.svg" sx={{ width: '18px', height: '18px' }} />
+        <IconButton size="small" onClick={onDeleteClick}>
+          <Box component="img" src="/dashboard/delete.svg" alt="delete" sx={{ width: '18px', height: '18px' }} />
         </IconButton>
 
         {showTabs && (
@@ -410,7 +422,7 @@ export const DataGrid = <T extends Record<string, unknown>>(props: DataGridProps
               }}
               checkboxSelection={showCheckboxes}
               onRowSelectionModelChange={(newSelectionModel) => {
-                setSelectionModel(newSelectionModel);
+                handleSelectionChange(newSelectionModel);
               }}
               rowSelectionModel={selectionModel}
               loading={loading}

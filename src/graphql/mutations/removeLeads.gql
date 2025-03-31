@@ -1,0 +1,3 @@
+mutation removeLeads($leadIds: [ID!]!) {
+  removeLeads(leadIds: $leadIds)
+}

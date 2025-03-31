@@ -3,6 +3,9 @@ import { DRAWER_WIDTH, MainContent, MainContentShift } from '@/pages/public/styl
 import { paths } from '@/paths.config';
 import useDrawerTemplateOpen from '@/store/drawerTemplateOpen';
 import useToolbarStore from '@/store/Toolbar';
+import View3dIcon from '@mui/icons-material/ViewInAr';
+import ViewModuleIcon from '@mui/icons-material/ViewModule';
+import VrpanoIcon from '@mui/icons-material/VrPano';
 import { Box, Button, ButtonGroup, Drawer, Stack, Typography } from '@mui/material';
 import { Outlet, useNavigate } from 'react-router-dom';
 
@@ -10,7 +13,6 @@ import BoxImage from '@/components/boxImage';
 import DrawerHeaderComponent from '@/components/button/DrawerHeader';
 import FloatingToolbar from '@/components/floatingToolbar/floatingToolbar';
 import Modal from '@/components/modal/Modal';
-import Icon, { KnownIcons } from '@/components/Icon';
 
 import GroupPrice from '../checkOut/groupPrice';
 import { buttonStyles } from './components';
@@ -136,21 +138,21 @@ const LayoutDesign = (): React.JSX.Element => {
 
             <ButtonGroup variant="contained" sx={buttonStyles.viewModeButtonGroup}>
               <Button
-                startIcon={KnownIcons.ViewModule ? <KnownIcons.ViewModule /> : null}
+                startIcon={<ViewModuleIcon />}
                 onClick={() => handleViewModeChange('2D')}
                 sx={buttonStyles.viewModeButton(viewMode === '2D')}
               >
                 2D
               </Button>
               <Button
-                startIcon={KnownIcons.ViewInAr ? <KnownIcons.ViewInAr /> : null}
+                startIcon={<View3dIcon />}
                 onClick={() => handleViewModeChange('3D')}
                 sx={buttonStyles.viewModeButton(viewMode === '3D')}
               >
                 3D
               </Button>
               <Button
-                startIcon={KnownIcons.VrPano ? <KnownIcons.VrPano /> : null}
+                startIcon={<VrpanoIcon />}
                 onClick={() => handleViewModeChange('VIRTUAL')}
                 sx={buttonStyles.viewModeButton(viewMode === 'VIRTUAL')}
               >

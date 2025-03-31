@@ -1,0 +1,26 @@
+query categories($filter: FilterCategoryInput){
+    categories(filter: $filter){
+        items{
+            id
+            name
+            thumbnail
+            tenantIds
+            orderIdx
+            createdAt
+            updatedAt
+            deletedAt
+            communities{
+                id
+                name
+                state
+                status
+                thumbnail_url
+                description
+                deletedAt
+                createdAt
+                updatedAt
+            }
+        }
+        total
+    }
+}

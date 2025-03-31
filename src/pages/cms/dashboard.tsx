@@ -1,6 +1,8 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
+import { useRemoveLeadsMutation } from '@/graphql/mutations/removeLeads.generated';
 import { useLeadsQuery } from '@/graphql/queries/leads.generated';
 import { buildGraphQLVariables } from '@/utils/graphql';
+import { ToastMessage } from '@/utils/toast';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { Box, IconButton, Tooltip, Typography } from '@mui/material';
 
@@ -34,10 +36,25 @@ const Dashboard = (): React.JSX.Element => {
     limit: 5,
   });
 
+  // State for selected rows
+  const [selectedRows, setSelectedRows] = useState<(string | number)[]>([]);
+
+  // Track deleted IDs to filter them out immediately
+  const [deletedIds, setDeletedIds] = useState<string[]>([]);
+
   // Query with filter parameters
-  const [queryResult] = useLeadsQuery(buildGraphQLVariables(filterParams, 5));
+  const [queryResult, reexecuteQuery] = useLeadsQuery(buildGraphQLVariables(filterParams, 5));
+
+  const [, removeLeads] = useRemoveLeadsMutation();
 
   const { data, fetching } = queryResult;
+
+  // Reset deleted IDs when the data is refreshed
+  useEffect(() => {
+    if (!fetching) {
+      setDeletedIds([]);
+    }
+  }, [data, fetching]);
 
   // Handle filter changes from the DataGrid
   const handleFilterChange = useCallback((newFilters: FilterParams) => {
@@ -54,6 +71,65 @@ const Dashboard = (): React.JSX.Element => {
     // This would be implemented if the API supports it
   }, []);
 
+  // Handle selection changes from DataGrid
+  const handleSelectionChange = useCallback(
+    (selectedIds: (string | number)[]) => {
+      // Filter out any deleted IDs from the selection
+      const validSelectedIds = selectedIds.filter((id) => !deletedIds.includes(id.toString()));
+      setSelectedRows(validSelectedIds);
+    },
+    [deletedIds]
+  );
+
+  // Handle delete action
+  const handleDeleteClick = useCallback(async () => {
+    if (selectedRows.length === 0) {
+      console.log('No rows selected for deletion');
+      ToastMessage('warning', 'No leads selected for deletion');
+      return;
+    }
+
+    try {
+      // Convert any numeric IDs to strings if needed
+      const stringIds = selectedRows.map((id) => id.toString());
+
+      console.log('Deleting leads with IDs:', stringIds);
+
+      // First update UI immediately by marking these items as deleted
+      setDeletedIds((prev) => [...prev, ...stringIds]);
+
+      // Also clear the selection since these items are being deleted
+      setSelectedRows([]);
+
+      // Then perform the actual deletion in the backend
+      const result = await removeLeads({
+        leadIds: stringIds,
+      });
+
+      if (result.data?.removeLeads) {
+        console.log('Delete successful:', result);
+        // Show success message with toast
+        ToastMessage('success', `Successfully deleted ${stringIds.length} lead${stringIds.length > 1 ? 's' : ''}`);
+
+        // Refresh the data after deletion to sync with server
+        reexecuteQuery();
+      } else if (result.error) {
+        console.error('Error in mutation result:', result.error);
+        ToastMessage('error', `Failed to delete: ${result.error.message}`);
+
+        // If deletion failed, remove these IDs from the deletedIds list
+        setDeletedIds((prev) => prev.filter((id) => !stringIds.includes(id)));
+      }
+    } catch (error) {
+      console.error('Error deleting leads:', error);
+      ToastMessage('error', `An error occurred: ${error instanceof Error ? error.message : 'Unknown error'}`);
+
+      // If deletion failed, remove the IDs from deletedIds
+      const stringIds = selectedRows.map((id) => id.toString());
+      setDeletedIds((prev) => prev.filter((id) => !stringIds.includes(id)));
+    }
+  }, [selectedRows, removeLeads, reexecuteQuery]);
+
   const rows: LeadRow[] = React.useMemo(() => {
     if (!data?.leads?.items?.length) return [];
 
@@ -63,26 +139,54 @@ const Dashboard = (): React.JSX.Element => {
     // Create a Set to ensure we don't have duplicate IDs
     const uniqueIds = new Set<string>();
 
-    const mappedRows = data.leads.items.map((lead, index) => {
-      // Destructure with defaults to avoid repetitive null checks
-      const { id, createdAt, community, product, full_name, email, phone, state, sale_agent, status, lead_source } =
-        lead;
+    const mappedRows = data.leads.items
+      // Filter out rows that have been deleted locally
+      .filter((lead) => lead.id && !deletedIds.includes(lead.id.toString()))
+      .map((lead, index) => {
+        // Destructure with defaults to avoid repetitive null checks
+        const { id, createdAt, community, product, full_name, email, phone, state, sale_agent, status, lead_source } =
+          lead;
 
-      // Generate a unique ID for each row
-      // If ID is null or undefined, use the index
-      // If ID is a UUID string, use it directly
-      const rowId = id
-        ? typeof id === 'string' && id.includes('-')
-          ? id // Use UUID as is
-          : Number(id) // Convert to number for numeric IDs
-        : `idx-${index}`; // Use index as fallback for null IDs
+        // Generate a unique ID for each row
+        // If ID is null or undefined, use the index
+        // If ID is a UUID string, use it directly
+        const rowId = id
+          ? typeof id === 'string' && id.includes('-')
+            ? id // Use UUID as is
+            : Number(id) // Convert to number for numeric IDs
+          : `idx-${index}`; // Use index as fallback for null IDs
 
-      // Check for duplicates
-      if (uniqueIds.has(String(rowId))) {
-        console.warn(`Duplicate ID found: ${rowId}, using index-based ID as fallback`);
-        // Assign a guaranteed unique ID based on index
+        // Check for duplicates
+        if (uniqueIds.has(String(rowId))) {
+          console.warn(`Duplicate ID found: ${rowId}, using index-based ID as fallback`);
+          // Assign a guaranteed unique ID based on index
+          return {
+            id: `row-${index}-${Date.now()}`,
+            createAt: createdAt
+              ? new Date(createdAt).toLocaleString('en-US', {
+                  year: 'numeric',
+                  month: 'short',
+                  day: 'numeric',
+                  hour: '2-digit',
+                  minute: '2-digit',
+                })
+              : '',
+            community: community ? (typeof community === 'object' ? community.name || '' : community) : '',
+            floorplan: product?.name || '',
+            fullName: full_name || '',
+            email: email || '',
+            phone: phone || '',
+            state: state || '',
+            saleAgent: sale_agent || 'Not Assigned',
+            status: (status as StatusType) || 'New',
+            leadSource: (lead_source as SourceType) || 'Website',
+          };
+        }
+
+        uniqueIds.add(String(rowId));
+
         return {
-          id: `row-${index}-${Date.now()}`,
+          id: rowId,
           createAt: createdAt
             ? new Date(createdAt).toLocaleString('en-US', {
                 year: 'numeric',
@@ -92,7 +196,7 @@ const Dashboard = (): React.JSX.Element => {
                 minute: '2-digit',
               })
             : '',
-          community: community || '',
+          community: community ? (typeof community === 'object' ? community.name || '' : community) : '',
           floorplan: product?.name || '',
           fullName: full_name || '',
           email: email || '',
@@ -102,39 +206,14 @@ const Dashboard = (): React.JSX.Element => {
           status: (status as StatusType) || 'New',
           leadSource: (lead_source as SourceType) || 'Website',
         };
-      }
-
-      uniqueIds.add(String(rowId));
-
-      return {
-        id: rowId,
-        createAt: createdAt
-          ? new Date(createdAt).toLocaleString('en-US', {
-              year: 'numeric',
-              month: 'short',
-              day: 'numeric',
-              hour: '2-digit',
-              minute: '2-digit',
-            })
-          : '',
-        community: community || '',
-        floorplan: product?.name || '',
-        fullName: full_name || '',
-        email: email || '',
-        phone: phone || '',
-        state: state || '',
-        saleAgent: sale_agent || 'Not Assigned',
-        status: (status as StatusType) || 'New',
-        leadSource: (lead_source as SourceType) || 'Website',
-      };
-    });
+      });
 
     // Log the mapped rows to see if they're unique
     console.log('Mapped rows with unique IDs:', mappedRows);
     console.log('Unique IDs count:', uniqueIds.size, 'Total rows:', mappedRows.length);
 
     return mappedRows;
-  }, [data?.leads?.items]);
+  }, [data?.leads?.items, deletedIds]);
 
   const getStatusChip = (status: unknown) => {
     return <StatusChip status={status as StatusType} />;
@@ -260,6 +339,8 @@ const Dashboard = (): React.JSX.Element => {
         filterParams={filterParams}
         onFilterChange={handleFilterChange}
         onSortChange={handleSortChange}
+        onSelectionChange={handleSelectionChange}
+        onDeleteClick={handleDeleteClick}
       />
     </Box>
   );

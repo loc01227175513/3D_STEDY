@@ -10,7 +10,7 @@ interface DrawerTemplateOpenState {
 const useDrawerTemplateOpen = create<DrawerTemplateOpenState>((set) => ({
   open: false,
   setOpen: (open) => set({ open }),
-  openDashboard: false,
+  openDashboard: true,
   setOpenDashboard: (openDashboard) => set({ openDashboard }),
 }));
 

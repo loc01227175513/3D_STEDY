@@ -1,0 +1,40 @@
+query products($filter: FilterProductInput){
+    products(filter: $filter){
+        items{
+            id
+            code
+            name
+            brandName
+            path
+            defaultSize
+            price
+            thumbnail
+            communitiesId
+            communities{
+                id
+                name
+                state
+                status
+                thumbnail_url
+                description
+                deletedAt
+                createdAt
+                updatedAt
+            }
+            enable
+            serieIds
+            storeIds
+            createdAt
+            updatedAt
+            deletedAt
+            description
+            position
+            availableSizes
+            note
+            offset
+            moduleType
+            SKU
+        }
+        total
+    }
+}

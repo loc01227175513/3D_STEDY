@@ -41,3 +41,4 @@ export { default as EditUserPage } from '@/pages/cms/public/editPage/editUser';
 export { default as CategoryPage } from '@/pages/cms/public/category';
 export { default as CustomersPage } from '@/pages/cms/public/customers';
 export { default as EditLeadPage } from '@/pages/cms/public/editPage/editLead';
+export { default as AddLeadPage } from '@/pages/cms/public/addPage/addLead';

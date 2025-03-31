@@ -5,30 +5,21 @@ import {
 } from '@/graphql/mutations/refreshToken.generated';
 import { paths } from '@/paths.config';
 import { getAccessToken, getRefreshToken, removeAllToken, saveAccessToken, saveRefreshToken } from '@/utils/storage';
-import { GRAPHQL_URL } from '@/utils/apiConfig';
-import { 
-  ApolloClient, 
-  from, 
-  fromPromise, 
-  HttpLink, 
-  InMemoryCache, 
-  split, 
-  type Observable
-} from '@apollo/client';
+import { ApolloClient, from, fromPromise, HttpLink, InMemoryCache, split, type Observable } from '@apollo/client';
 import { setContext } from '@apollo/client/link/context';
 import { onError } from '@apollo/client/link/error';
 import { GraphQLWsLink } from '@apollo/client/link/subscriptions';
-import { getMainDefinition } from '@apollo/client/utilities';
+import { getMainDefinition } from 'apollo-utilities';
 import { createClient } from 'graphql-ws';
 
-// Use the centralized GraphQL URL
+// Lấy URL từ biến môi trường
 const httpLink = new HttpLink({
-  uri: GRAPHQL_URL,
+  uri: `${import.meta.env.VITE_PUBLIC_API_DOMAIN || ''}${import.meta.env.VITE_PUBLIC_API_URL || ''}`,
   includeExtensions: true,
 });
 
-// Use the centralized GraphQL URL for WebSocket as well
-const wsUrl = GRAPHQL_URL.replace(/^https?/, 'wss');
+const API_URL = `${import.meta.env.VITE_PUBLIC_API_DOMAIN || ''}${import.meta.env.VITE_PUBLIC_API_URL || ''}`;
+const wsUrl = API_URL.replace(/^https?/, 'wss');
 
 const authLink = setContext((_, { headers }) => {
   const token = getAccessToken() || '';

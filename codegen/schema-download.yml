@@ -1,0 +1,11 @@
+schema:
+  - http://137.184.13.30:3000/graphql:
+      method: GET
+      headers:
+        Accept: application/json
+generates:
+  schema/schema.graphql:
+    plugins:
+      - schema-ast
+    config:
+      includeDirectives: true 

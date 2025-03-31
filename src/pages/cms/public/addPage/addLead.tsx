@@ -9,6 +9,12 @@ import { styled } from '@mui/material/styles';
 import ButtonEdit from '../../../../components/dashBoard/buttonEdit/buttonEdit';
 import SelectEdit from '../../../../components/dashBoard/select/select';
 import TextFieldEdit from '../../../../components/dashBoard/textFieldEdit/textFieldEdit';
+import { useCreateLeadMutation } from '../../../../graphql/mutations/createLead.generated';
+import { useCommunitiesQuery } from '../../../../graphql/queries/communities.generated';
+import { useProductsQuery } from '../../../../graphql/queries/products.generated';
+import { useNavigate } from 'react-router-dom';
+import { paths } from '../../../../paths.config';
+import { ToastMessage } from '../../../../utils/toast';
 
 const StyledPaper = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(3),
@@ -17,40 +23,95 @@ const StyledPaper = styled(Paper)(({ theme }) => ({
   boxShadow: 'none',
 }));
 
-const EditLeadPage = (): React.JSX.Element => {
+const AddLeadPage = (): React.JSX.Element => {
   // Customer information state
-  const [customerName, setCustomerName] = useState('John Smith');
-  const [phoneNumber, setPhoneNumber] = useState('+61 412 345 678');
-  const [email, setEmail] = useState('john.smith@example.com');
-  const [address, setAddress] = useState('90 Cobden St, South Melbourne VIC 3205, Australia');
-  const [leadSource, setLeadSource] = useState('Referral');
+  const [customerName, setCustomerName] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [email, setEmail] = useState('');
+  const [address, setAddress] = useState('');
+  const [leadSource, setLeadSource] = useState('');
+
   // Project information state
-  const [communityName, setCommunityName] = useState('BlueprintPro');
-  const [floorPlan, setFloorPlan] = useState('BlueprintPro');
-  const [totalPrice] = useState('$6,900.00');
+  const [communityId, setCommunityId] = useState('');
+  const [floorPlanId, setFloorPlanId] = useState<number | null>(null);
+  const [selectedFloorPlan, setSelectedFloorPlan] = useState<{ image: string; price: string } | null>(null);
+  const [totalPrice, setTotalPrice] = useState('$0.00');
 
-  // Options for select fields
-  const communityOptions = [
-    { value: 'BlueprintPro', label: 'BlueprintPro' },
-    { value: 'GreenVilla', label: 'Green Villa' },
-    { value: 'SunsetVillas', label: 'Sunset Villas' },
-    { value: 'OceanBreeze', label: 'Ocean Breeze' },
-  ];
+  // GraphQL queries and mutation
+  const [communitiesResult] = useCommunitiesQuery();
+  const [productsResult] = useProductsQuery();
+  const [createLeadState, executeCreateLead] = useCreateLeadMutation();
+  const navigate = useNavigate();
+  // Create options arrays from GraphQL data
+  const communityOptions =
+    communitiesResult.data?.communities.items.map((community) => ({
+      value: community.id,
+      label: community.name,
+    })) || [];
 
-  const floorPlanOptions = [
-    { value: 'BlueprintPro', label: 'BlueprintPro' },
-    { value: 'StandardPlan', label: 'Standard Plan' },
-    { value: 'FamilyPlan', label: 'Family Plan' },
-    { value: 'LuxuryPlan', label: 'Luxury Plan' },
-  ];
+  const floorPlanOptions =
+    productsResult.data?.products.items.map((product) => ({
+      value: product.id,
+      label: product.name,
+      image: product.thumbnail,
+      price: product.price ? `$${product.price.toFixed(2)}` : '$0.00',
+    })) || [];
 
   // Handle select change
   const handleCommunityChange = (event: SelectChangeEvent<unknown>) => {
-    setCommunityName(event.target.value as string);
+    setCommunityId(event.target.value as string);
   };
 
   const handleFloorPlanChange = (event: SelectChangeEvent<unknown>) => {
-    setFloorPlan(event.target.value as string);
+    const selectedId = event.target.value as string;
+    console.log('Selected floor plan ID:', selectedId);
+    setFloorPlanId(parseInt(selectedId, 10));
+
+    // Find the selected floor plan from options
+    const selectedPlan = floorPlanOptions.find((option) => option.value === selectedId);
+    if (selectedPlan) {
+      setSelectedFloorPlan({
+        image: selectedPlan.image,
+        price: selectedPlan.price,
+      });
+      setTotalPrice(selectedPlan.price);
+    }
+  };
+
+  // Handle save button click
+  const handleSave = async () => {
+    try {
+      // Validate required fields
+      if (!floorPlanId) {
+        console.error('Floor plan is required');
+        return;
+      }
+
+      const result = await executeCreateLead({
+        createLeadInput: {
+          full_name: customerName,
+          phone: phoneNumber,
+          email: email,
+          address: address,
+          lead_source: leadSource,
+          communityId: communityId,
+          productId: floorPlanId,
+        },
+      });
+
+      if (result.error) {
+        throw result.error;
+      }
+
+      // Show success toast
+      ToastMessage('success', 'Lead created successfully');
+      
+      // Navigate back to dashboard
+      navigate(paths.dashboard);
+    } catch (error) {
+      console.error('Error creating lead:', error);
+      ToastMessage('error', 'Failed to create lead');
+    }
   };
 
   return (
@@ -189,9 +250,10 @@ const EditLeadPage = (): React.JSX.Element => {
               </Typography>
               <SelectEdit
                 options={communityOptions}
-                value={communityName}
+                value={communityId}
                 onChange={handleCommunityChange}
                 sx={{ mb: 2 }}
+                disabled={communitiesResult.fetching}
               />
 
               <Typography variant="subtitle2" gutterBottom sx={{ fontSize: '1rem' }}>
@@ -199,9 +261,10 @@ const EditLeadPage = (): React.JSX.Element => {
               </Typography>
               <SelectEdit
                 options={floorPlanOptions}
-                value={floorPlan}
+                value={floorPlanId}
                 onChange={handleFloorPlanChange}
                 sx={{ mb: 2 }}
+                disabled={productsResult.fetching}
               />
 
               {/* Project Image */}
@@ -218,7 +281,7 @@ const EditLeadPage = (): React.JSX.Element => {
               >
                 <Box
                   component="img"
-                  src="/Images/selectFloorPlan/KITCHEN2 (4).svg"
+                  src={selectedFloorPlan?.image || '/Images/selectFloorPlan/KITCHEN2 (4).svg'}
                   alt="House template"
                   sx={{
                     width: '100%',
@@ -306,9 +369,12 @@ const EditLeadPage = (): React.JSX.Element => {
             boxShadow: 'none',
             px: 3,
           }}
+          onClick={handleSave}
+          disabled={createLeadState.fetching}
         />
         <ButtonEdit
           text="CANCEL"
+          onClick={() => navigate(paths.dashboard)}
           variant="outlined"
           sx={{
             color: 'black',
@@ -324,4 +390,4 @@ const EditLeadPage = (): React.JSX.Element => {
   );
 };
 
-export default EditLeadPage;
+export default AddLeadPage;

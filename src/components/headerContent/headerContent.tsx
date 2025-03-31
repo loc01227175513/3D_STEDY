@@ -1,16 +1,33 @@
 import React from 'react';
+import useDrawerTemplateOpen from '@/store/drawerTemplateOpen';
 import AddIcon from '@mui/icons-material/Add';
-import { Box, Button, Stack, SxProps, Theme, Typography } from '@mui/material';
+import { Box, Stack, SxProps, Theme, Typography } from '@mui/material';
+
+import ButtonCommon from '../button/ButtonCommon';
 
 interface HeaderContentProps {
   title: string;
   showAddButton?: boolean;
   onAddClick?: () => void;
   icon?: React.ReactNode;
+  buttonText?: string;
+  buttonIcon?: React.ReactNode;
   sx?: SxProps<Theme>;
 }
 
-const HeaderContent: React.FC<HeaderContentProps> = ({ title, showAddButton = true, onAddClick, icon, sx }) => {
+const HeaderContent: React.FC<HeaderContentProps> = ({
+  title,
+  showAddButton = true,
+  onAddClick,
+  icon,
+  buttonText = 'Add new',
+  buttonIcon = <AddIcon />,
+  sx,
+}) => {
+  const { openDashboard, setOpenDashboard } = useDrawerTemplateOpen();
+  const handleDrawerToggle = () => {
+    setOpenDashboard(!openDashboard);
+  };
   return (
     <Box
       sx={{
@@ -26,6 +43,7 @@ const HeaderContent: React.FC<HeaderContentProps> = ({ title, showAddButton = tr
       <Stack direction="row" alignItems="center" spacing={2} sx={{ flex: 1 }}>
         {icon && (
           <Box
+            onClick={handleDrawerToggle}
             sx={{
               display: 'flex',
               alignItems: 'center',
@@ -35,6 +53,9 @@ const HeaderContent: React.FC<HeaderContentProps> = ({ title, showAddButton = tr
               borderRadius: '50%',
               backgroundColor: 'rgba(41, 109, 246, 0.1)',
               color: 'black',
+              cursor: 'pointer',
+              transition: 'transform 0.3s ease',
+              transform: openDashboard ? 'rotate(0deg)' : 'rotate(180deg)',
             }}
           >
             {icon}
@@ -51,20 +72,9 @@ const HeaderContent: React.FC<HeaderContentProps> = ({ title, showAddButton = tr
           {title}
         </Typography>
         {showAddButton && (
-          <Button
-            variant="contained"
-            startIcon={<AddIcon />}
-            onClick={onAddClick}
-            sx={{
-              backgroundColor: '#296df6',
-
-              '&:hover': {
-                backgroundColor: '#1565c0',
-              },
-            }}
-          >
-            Add new
-          </Button>
+          <ButtonCommon startIcon={buttonIcon} onClick={onAddClick}>
+            {buttonText}
+          </ButtonCommon>
         )}
       </Stack>
     </Box>

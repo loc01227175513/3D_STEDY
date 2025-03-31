@@ -1,0 +1,26 @@
+query communities($filter: FilterCommunityInput){
+    communities(filter: $filter){
+        items{
+            id
+            name
+            state
+            status
+            thumbnail_url
+            description
+            categories{
+                id
+                name
+                thumbnail
+                tenantIds
+                orderIdx
+                createdAt
+                updatedAt
+                deletedAt
+            }
+            deletedAt
+            createdAt
+            updatedAt
+        }
+        total
+    }
+}

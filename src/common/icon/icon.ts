@@ -1,3 +1,4 @@
+import AddIcon from '@mui/icons-material/Add';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import StoreIcon from '@mui/icons-material/Store';
 
@@ -21,6 +22,7 @@ export const icons = {
   user: user,
   startNewDesign: StartNewDesignIcon,
   setting: SettingsIcon,
+  add: AddIcon,
 } as const;
 
 export type IconType = keyof typeof icons;

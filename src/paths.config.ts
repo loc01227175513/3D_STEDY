@@ -2,6 +2,9 @@ import { styleDashboard, styleDashboardDown } from '@/common/style/styleDashboar
 
 import { icons } from './common/icon/icon';
 
+// Define a navigation function type for proper usage elsewhere
+export type NavigateFunction = (path: string) => void;
+
 export const paths = {
   home: '/',
   signIn: '/auth',
@@ -13,6 +16,9 @@ export const paths = {
   store: '/dashboard/stores',
   user: '/dashboard/users',
   setting: '/dashboard/setting',
+  leads: {
+    add: '/dashboard/leads/add',
+  },
   // Design paths
   floorplan: {
     path: '/',
@@ -63,6 +69,16 @@ export const dashboard = {
       sx: styleDashboard.sx,
       sxIcon: styleDashboard.sxIcon,
       sxText: styleDashboard.sxText,
+      headerContent: {
+        title: 'Leads',
+        showAddButton: true,
+        // The onAddClick will accept a navigate function from the component that uses it
+        onAddClick: (navigate: NavigateFunction) => {
+          navigate(paths.leads.add);
+        },
+        icon: icons.add,
+        buttonText: 'Add Lead',
+      },
     },
     projects: {
       path: '/dashboard/CommunitiesPage',
@@ -71,6 +87,12 @@ export const dashboard = {
       sx: styleDashboard.sx,
       sxIcon: styleDashboard.sxIcon,
       sxText: styleDashboard.sxText,
+      headerContent: {
+        title: 'Communities',
+        showAddButton: true,
+        onAddClick: (navigate: NavigateFunction) => {},
+        icon: icons.add,
+      },
     },
     products: {
       path: '/dashboard/FloorPlanPage',
@@ -79,6 +101,12 @@ export const dashboard = {
       sx: styleDashboard.sx,
       sxIcon: styleDashboard.sxIcon,
       sxText: styleDashboard.sxText,
+      headerContent: {
+        title: 'Floorplans',
+        showAddButton: true,
+        onAddClick: (navigate: NavigateFunction) => {},
+        icon: icons.add,
+      },
     },
     customers: {
       path: '/dashboard/CustomersPage',
@@ -87,6 +115,12 @@ export const dashboard = {
       sx: styleDashboard.sx,
       sxIcon: styleDashboard.sxIcon,
       sxText: styleDashboard.sxText,
+      headerContent: {
+        title: 'Customers',
+        showAddButton: true,
+        onAddClick: (navigate: NavigateFunction) => {},
+        icon: icons.add,
+      },
     },
     analytics: {
       path: '/dashboard/analytics',
@@ -95,6 +129,12 @@ export const dashboard = {
       sx: styleDashboard.sx,
       sxIcon: styleDashboard.sxIcon,
       sxText: styleDashboard.sxText,
+      headerContent: {
+        title: 'Analytics & Report',
+        showAddButton: true,
+        onAddClick: (navigate: NavigateFunction) => {},
+        icon: icons.add,
+      },
     },
     users: {
       path: '/dashboard/users',
@@ -103,6 +143,12 @@ export const dashboard = {
       sx: styleDashboard.sxUsers,
       sxIcon: styleDashboard.sxUsersIcon,
       sxText: styleDashboard.sxUsersText,
+      headerContent: {
+        title: 'Users',
+        showAddButton: true,
+        onAddClick: (navigate: NavigateFunction) => {},
+        icon: icons.add,
+      },
     },
     settings: {
       path: '/dashboard/settings',
@@ -111,6 +157,12 @@ export const dashboard = {
       sx: styleDashboard.sx,
       sxIcon: styleDashboard.sxIcon,
       sxText: styleDashboard.sxText,
+      headerContent: {
+        title: 'Settings',
+        showAddButton: true,
+        onAddClick: (navigate: NavigateFunction) => {},
+        icon: icons.add,
+      },
     },
   },
 };
@@ -125,6 +177,12 @@ export const dashboardDown = {
       sx: styleDashboardDown.startNewDesign,
       sxIcon: styleDashboardDown.startNewDesignIcon,
       sxText: styleDashboardDown.startNewDesignText,
+      headerContent: {
+        title: 'START NEW DESIGN',
+        showAddButton: true,
+        onAddClick: (navigate: NavigateFunction) => {},
+        icon: icons.add,
+      },
     },
     users: {
       path: '/dashboard/down/users',
@@ -135,6 +193,12 @@ export const dashboardDown = {
       sxIcon: styleDashboardDown.sxIcon,
       sxText: styleDashboardDown.sxText,
       sxArrow: styleDashboardDown.sxArrow,
+      headerContent: {
+        title: 'Admin User',
+        showAddButton: true,
+        onAddClick: (navigate: NavigateFunction) => {},
+        icon: icons.add,
+      },
     },
   },
 };

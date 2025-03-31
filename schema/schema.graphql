@@ -1,7 +1,7 @@
-"""
-Indicates exactly one field must be supplied and this field must not be `null`.
-"""
-directive @oneOf on INPUT_OBJECT
+schema {
+  query: Query
+  mutation: Mutation
+}
 
 type Category {
   communities: [Communities!]
@@ -84,14 +84,14 @@ input CreateKitchenTemplateInput {
 
 input CreateLeadInput {
   address: String
-  community: String
+  communityId: String
   consultant: String
   email: String
   full_name: String!
   home_specialist: String
   lead_source: String
   phone: String
-  productId: Float
+  productId: Int
   sale_agent: String
   state: String
   status: String
@@ -233,6 +233,7 @@ input FilterLeadInput {
   keyword: String
   limit: Int = 10
   page: Int = 1
+  productId: Int
   status: String
 }
 
@@ -332,7 +333,8 @@ type KitchenTemplatePaginatedResponse {
 
 type Lead {
   address: String
-  community: String
+  community: Communities
+  communityId: String
   consultant: String
   createdAt: DateTime!
   deletedAt: DateTime
@@ -343,7 +345,7 @@ type Lead {
   lead_source: String
   phone: String
   product: Product
-  productId: Float
+  productId: Int
   sale_agent: String
   state: String
   status: String
@@ -389,18 +391,19 @@ type Mutation {
   login(input: LoginInput!): LoginResponse!
   logout(input: LogoutInput!): Boolean!
   refreshToken(input: RefreshTokenInput!): RefreshTokenResponse!
-  removeCategory(categoryId: ID): Boolean!
-  removeCommunity(communityId: ID): Boolean!
-  removeCustomerInfo(customerInfoId: ID!): Boolean!
-  removeKitchenTemplate(kitchenTemplateId: ID): Boolean!
-  removeLead(leadId: ID): Boolean!
-  removeProduct(id: Int!): Boolean!
-  removeRole(id: Int!): Boolean!
+  removeCategories(categoryIds: [ID!]): Boolean!
+  removeCommunities(communityIds: [ID!]): Boolean!
+  removeCustomerInfos(customerInfoIds: [ID!]!): Boolean!
+  removeKitchenTemplates(kitchenTemplateIds: [ID!]!): Boolean!
+  removeLeads(leadIds: [ID!]!): Boolean!
+  removeProducts(ids: [Int!]!): Boolean!
   removeRoleFromUser(roleId: Int!, userId: Int!): User!
-  removeSerie(serieId: ID): Boolean!
-  removeStore(storeId: ID): Boolean!
-  removeStyle(styleId: ID): Boolean!
-  removeTenant(tenantId: ID): Boolean!
+  removeRoles(ids: [Int!]!): Boolean!
+  removeSeries(serieIds: [ID!]!): Boolean!
+  removeStores(storeIds: [ID!]!): Boolean!
+  removeStyles(styleIds: [ID!]!): Boolean!
+  removeTenants(tenantIds: [ID!]!): Boolean!
+  removeUsers(userIds: [Int!]!): Boolean!
   updateCategory(categoryId: ID, updateCategoryInput: UpdateCategoryInput): Category!
   updateCommunity(communityId: ID, updateCommunityInput: UpdateCommunityInput): Communities!
   updateCustomerInfo(customerInfoId: ID!, updateCustomerInfoInput: UpdateCustomerInfoInput!): CustomerInfo!
@@ -631,7 +634,7 @@ input UpdateKitchenTemplateInput {
 
 input UpdateLeadInput {
   address: String
-  community: String
+  communityId: String
   consultant: String
   email: String
   full_name: String
@@ -639,7 +642,7 @@ input UpdateLeadInput {
   id: ID!
   lead_source: String
   phone: String
-  productId: Float
+  productId: Int
   sale_agent: String
   state: String
   status: String

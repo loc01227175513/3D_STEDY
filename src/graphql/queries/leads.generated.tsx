@@ -14,7 +14,7 @@ export type LeadsQueryResponse = { __typename?: 'Query' } & {
         { __typename?: 'Lead' } & Pick<
           Types.Lead,
           | 'address'
-          | 'community'
+          | 'communityId'
           | 'consultant'
           | 'createdAt'
           | 'deletedAt'
@@ -32,6 +32,20 @@ export type LeadsQueryResponse = { __typename?: 'Query' } & {
           | 'total_price'
           | 'updatedAt'
         > & {
+            community?: Types.Maybe<
+              { __typename?: 'Communities' } & Pick<
+                Types.Communities,
+                | 'createdAt'
+                | 'deletedAt'
+                | 'description'
+                | 'id'
+                | 'name'
+                | 'state'
+                | 'status'
+                | 'thumbnail_url'
+                | 'updatedAt'
+              >
+            >;
             product?: Types.Maybe<
               { __typename?: 'Product' } & Pick<
                 Types.Product,
@@ -69,7 +83,18 @@ export const LeadsDocument = gql`
     leads(filter: $filter) {
       items {
         address
-        community
+        community {
+          createdAt
+          deletedAt
+          description
+          id
+          name
+          state
+          status
+          thumbnail_url
+          updatedAt
+        }
+        communityId
         consultant
         createdAt
         deletedAt

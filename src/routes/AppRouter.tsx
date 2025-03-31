@@ -1,4 +1,5 @@
 import {
+  AddLeadPage,
   AnalyticPage,
   AnalyticsPage,
   CategoryPage,
@@ -79,7 +80,8 @@ const AppRouter: React.FC = () => (
             <Route path="/dashboard" element={<LayoutDashboard />}>
               <Route index element={<DashboardPage />} />
               <Route path="analytic" element={<AnalyticPage />} />
-              <Route path="edit" element={<EditLeadPage />} />
+              <Route path="leads/edit" element={<EditLeadPage />} />
+              <Route path="leads/add" element={<AddLeadPage />} />
               <Route path="FloorPlanPage" element={<FloorPlanPage />} />
               <Route path="FloorPlanPage/edit" element={<EditFloorPlanPage />} />
 
