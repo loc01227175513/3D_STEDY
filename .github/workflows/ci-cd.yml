@@ -141,14 +141,14 @@ jobs:
 
             services:
               app:
-                image: ${{ env.IMAGE_NAME }}:latest
+                image: __IMAGE_NAME__:latest
                 ports:
                   - "3000:3000"
                 restart: always
                 environment:
                   NODE_ENV: production
-                  VITE_PUBLIC_API_DOMAIN: ${{ env.API_DOMAIN }}
-                  VITE_PUBLIC_API_URL: ${{ env.API_URL }}
+                  VITE_PUBLIC_API_DOMAIN: __API_DOMAIN__
+                  VITE_PUBLIC_API_URL: __API_URL__
                   PORT: 3000
                   HOST: 0.0.0.0
                 volumes:
@@ -164,7 +164,12 @@ jobs:
               app_network:
                 driver: bridge
             EOF
-
+            
+            # Replace placeholders with actual values
+            sed -i "s|__IMAGE_NAME__|${{ env.IMAGE_NAME }}|g" docker-compose.yml
+            sed -i "s|__API_DOMAIN__|${{ env.API_DOMAIN }}|g" docker-compose.yml
+            sed -i "s|__API_URL__|${{ env.API_URL }}|g" docker-compose.yml
+            
             # Stop and remove existing containers
             docker-compose down || true
             
