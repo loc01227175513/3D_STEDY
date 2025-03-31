@@ -136,34 +136,34 @@ jobs:
             EOF
             
             # Create docker-compose.yml
-            cat > docker-compose.yml << EOF
-            version: '3'
+            cat > docker-compose.yml << 'EOF'
+version: '3'
 
-            services:
-              app:
-                image: ${{ env.IMAGE_NAME }}:latest
-                ports:
-                  - "3000:3000"
-                restart: always
-                environment:
-                  NODE_ENV: production
-                  VITE_PUBLIC_API_DOMAIN: ${{ env.API_DOMAIN }}
-                  VITE_PUBLIC_API_URL: ${{ env.API_URL }}
-                  PORT: 3000
-                  HOST: 0.0.0.0
-                volumes:
-                  - /root/nginx/nginx.conf:/etc/nginx/conf.d/default.conf
-                networks:
-                  - app_network
-                read_only: false
-                tmpfs:
-                  - /tmp
-                  - /var/cache/nginx
+services:
+  app:
+    image: ${{ env.IMAGE_NAME }}:latest
+    ports:
+      - "3000:3000"
+    restart: always
+    environment:
+      NODE_ENV: production
+      VITE_PUBLIC_API_DOMAIN: ${{ env.API_DOMAIN }}
+      VITE_PUBLIC_API_URL: ${{ env.API_URL }}
+      PORT: 3000
+      HOST: 0.0.0.0
+    volumes:
+      - /root/nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      - app_network
+    read_only: false
+    tmpfs:
+      - /tmp
+      - /var/cache/nginx
 
-            networks:
-              app_network:
-                driver: bridge
-            EOF
+networks:
+  app_network:
+    driver: bridge
+EOF
 
             # Stop and remove existing containers
             docker-compose down || true
